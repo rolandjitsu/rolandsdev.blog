@@ -1,0 +1,22 @@
+# See https://help.github.com/articles/ignoring-files/ for more about ignoring files.
+
+# OS X
+.DS_Store
+.AppleDouble
+.LSOverride
+
+## Icon must end with two \r
+Icon
+
+## Thumbnails
+._*
+
+# Hugo
+## Generated content
+/assets/jsconfig.json
+/public/
+resources/_gen/
+hugo_stats.json
+
+## Lock file while building
+.hugo_build.lock
