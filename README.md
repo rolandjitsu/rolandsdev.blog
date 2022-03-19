@@ -1,6 +1,8 @@
 # rolandsdev.blog
 > Home of [rolandsdev.blog](https://rolandsdev.blog) content.
 
+[![Netlify Status](https://api.netlify.com/api/v1/badges/8bcb558d-348e-4799-aff2-95c1e4b28211/deploy-status)](https://app.netlify.com/sites/rolandsdevblog/deploys)
+
 ## Development
 
 ### Prerequisites:
@@ -41,3 +43,6 @@ To build the static assets:
 ```bash
 hugo -D
 ```
+
+## Deployment
+Deployment is done via [Netlify](https://netlify.com). To find out more, checkout the [hugo integration](https://docs.netlify.com/configure-builds/common-configurations/hugo/).
