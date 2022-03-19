@@ -6,7 +6,7 @@ lastmod: 2022-03-19T21:34:00+08:00
 draft: true
 authors: ["rolandjitsu"]
 
-tags: ["cmake", "build"]
+tags: ["cmake"]
 categories: ["DevOps"]
 series: ["How to do stuff"]
 
