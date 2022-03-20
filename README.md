@@ -51,3 +51,5 @@ hugo -D
 
 ## Deployment
 Deployment is done via [Netlify](https://netlify.com). To find out more, checkout the [hugo integration](https://docs.netlify.com/configure-builds/common-configurations/hugo/).
+
+**NOTE** The integration was done via the netlify UI. For DNS, the only change required was the DNS namesevers (changed to netlify's NS).
