@@ -26,7 +26,7 @@ Throughout this guide, we'll use Docker to build our binaries, so make sure you'
 1. [Docker](https://docs.docker.com/engine) >= `19.03.13`
 2. [buildx](https://github.com/docker/buildx#installing) >= `v0.4.1`
 
-You'll also need to [enable the experimental features for Docker](){{< ref "/posts/how-to-enable-experimental-docker-in-github-workflows" >}}.
+You'll also need to [enable the experimental features for Docker]({{< ref "/posts/how-to-enable-experimental-docker-in-github-workflows" >}}).
 
 ## Setup
 Let's create a go project:
