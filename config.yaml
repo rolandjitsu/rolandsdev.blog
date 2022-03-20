@@ -105,7 +105,7 @@ params:
   footer:
     enable: yes
     hugo: yes
-    hostedOn: '<a title="Github Pages" href="https://docs.github.com/en/pages/" target="_blank" rel="noopener noreffer">GitHub Pages</a>'
+    hostedOn: '<a title="Netlify" href="https://www.netlify.com/" target="_blank" rel="noopener noreffer">Netlify</a>'
     copyright: yes
     author: yes
     # since: 2020
