@@ -6,7 +6,7 @@ lastmod: 2022-03-20T11:42:34+08:00
 draft: no
 authors: ["rolandjitsu"]
 
-tags: ["cross-compile", "raspberry-pi", "docker"]
+tags: ["cpp", "cross-compile", "raspberry-pi", "docker"]
 categories: ["DevOps"]
 
 toc:
