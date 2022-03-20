@@ -3,7 +3,7 @@ title: "Cross compile for Raspberry Pi with Docker"
 description: "Compile C/C++ code for ARM using  Docker and buildx."
 date: 2020-10-02T19:51:00+08:00
 lastmod: 2022-03-20T11:42:34+08:00
-draft: yes
+draft: no
 authors: ["rolandjitsu"]
 
 tags: ["cross-compile", "raspberry-pi", "docker"]
