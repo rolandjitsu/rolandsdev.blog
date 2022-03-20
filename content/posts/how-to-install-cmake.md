@@ -3,7 +3,7 @@ title: "How to install cmake?"
 description: "Install cmake on Debian, Ubuntu or macOS."
 date: 2020-09-29T14:32:00+08:00
 lastmod: 2022-03-19T21:34:00+08:00
-draft: true
+draft: no
 authors: ["rolandjitsu"]
 
 tags: ["cmake"]
