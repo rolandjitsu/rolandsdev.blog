@@ -1,5 +1,5 @@
 ---
-title: "Install and run qemu on K8s nodes"
+title: "How to install and run QEMU on K8s nodes?"
 description: "Add support for multi-CPU architectures on Kubernetes nodes."
 date: 2020-10-04T14:57:00+08:00
 lastmod: 2022-03-20T19:16:57+08:00
