@@ -151,6 +151,7 @@ params:
       auto: yes
     code:
       copy: yes
+      maxShownLines: 100
     table:
       sort: yes
     math:
