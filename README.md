@@ -32,6 +32,11 @@ hugo serve -D --disableFastRender
 ```
 **NOTE** The `--disableFastRender` flag is recommended by the [DoIt](https://hugodoit.pages.dev/theme-documentation-basics/#launching-the-website-locally) authors.
 
+**NOTE** To clean the cache, run:
+```bash
+rm -rf $TMPDIR/hugo_cache/rolandsdev.blog
+```
+
 ### Add Content
 To add a post, run:
 ```bash
