@@ -19,7 +19,7 @@ toc:
 Most Linux distributions come packaged with some older version of OpenSSL, but if you need some of newest features (such as [support for TLSv1.3](https://www.openssl.org/news/openssl-1.1.1-notes.html)), then you'll need to manually install it.
 
 ## Install on Linux
-**NOTE**: These instructions should work for most Debian based distros.
+These instructions should work for most Debian based distros.
 
 Install the build dependencies:
 ```bash
@@ -37,7 +37,9 @@ cd openssl
 ./config zlib '-Wl,-rpath,$(LIBRPATH)'
 ```
 
-**NOTE**: The rpath flag is used to set the runtime shared library search path, check the notes about [shared libs and non-default install locations](https://github.com/openssl/openssl/blob/master/NOTES-Unix.md#shared-libraries-and-installation-in-non-default-locations).
+{{< admonition type=note >}}
+The rpath flag is used to set the runtime shared library search path, check the notes about [shared libs and non-default install locations](https://github.com/openssl/openssl/blob/master/NOTES-Unix.md#shared-libraries-and-installation-in-non-default-locations).
+{{< /admonition >}}
 
 Build and test:
 ```bash

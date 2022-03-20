@@ -29,7 +29,9 @@ Therefore, you will probably need to proceed with a manual installation. But bef
 cmake --version
 ```
 
-**NOTE**: These instructions should work for Debian based distros and macOS.
+{{< admonition type=note >}}
+These instructions should work for Debian based distros and macOS.
+{{< /admonition >}}
 
 Remove the current install:
 ```bash
