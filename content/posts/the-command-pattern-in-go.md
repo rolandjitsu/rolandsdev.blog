@@ -1,7 +1,7 @@
 ---
 title: "The command pattern in Go"
 description: "Implement the command design pattern in Golang."
-date: 2020-03-20T20:51:18+08:00
+date: 2020-10-26T12:03:00+08:00
 lastmod: 2022-03-20T20:51:18+08:00
 draft: no
 authors: ["rolandjitsu"]
