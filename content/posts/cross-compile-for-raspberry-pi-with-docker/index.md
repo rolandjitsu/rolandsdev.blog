@@ -7,7 +7,8 @@ draft: no
 authors: ["rolandjitsu"]
 
 tags: ["cpp", "cross-compile", "raspberry-pi", "docker"]
-categories: ["DevOps"]
+categories: ["DevOps", "Raspberry Pi"]
+series: []
 
 toc:
   enable: yes
