@@ -6,7 +6,7 @@ lastmod: 2022-03-20T17:04:23+08:00
 draft: no
 authors: ["rolandjitsu"]
 
-tags: ["docker", "github", "ci/cd"]
+tags: ["docker", "github", "ci"]
 categories: ["DevOps"]
 series: ["How to do stuff"]
 
