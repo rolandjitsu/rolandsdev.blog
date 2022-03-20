@@ -6,7 +6,7 @@ lastmod: 2022-03-20T20:24:02+08:00
 draft: no
 authors: ["rolandjitsu"]
 
-tags: ["go"]
+tags: ["go", "design-patterns"]
 categories: ["Go"]
 series: ["Design Patterns in Go"]
 
