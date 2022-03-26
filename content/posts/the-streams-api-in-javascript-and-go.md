@@ -2,11 +2,11 @@
 title: "The Streams API in JavaScript and Go"
 description: "Checkout how to use the Streams API in JavaScript and how the API implementation would look like for it in Go."
 date: 2020-11-08T20:24:00+08:00
-lastmod: 2022-03-20T21:11:07+08:00
+lastmod: 2022-03-26T20:25:44+08:00
 draft: no
 authors: ["rolandjitsu"]
 
-tags: ["go", "javascript", "echo", "fetch"]
+tags: ["go", "javascript", "echo", "fetch", "streaming-api"]
 categories: ["Go", "JavaScript"]
 series: []
 
@@ -14,8 +14,8 @@ toc:
   enable: no
 ---
 
-{{< admonition type=warning title="JSON Parsing Bug" >}}
-Please checkout [echo-streaming-bug](https://github.com/transcelestial/echo-streaming-bug) for an updated version of the client code which only parses JSON on line breaks.
+{{< admonition type=tip title="JSON Parsing" >}}
+Checkout [Adventures with the Streaming API]({{< ref "/posts/adventures-with-the-streaming-api" >}}) to find out more about parsing JSON data from streaming APIs.
 {{< /admonition >}}
 
 If you ever had to build a realtime web app and you've built yourself a [REST](https://restfulapi.net/) backend (or you need to use same legacy REST backend), you most likely stumbled upon a pretty common issue: how do I stream a bunch of data from the backend to make it seem it's updated in realtime?
@@ -183,6 +183,10 @@ export async function startStream(url, cb, signal) {
   }
 }
 ```
+
+{{< admonition type=warning title="JSON Parsing" >}}
+While the above example may work most of the time when parsing the data as JSON, it's not guaranteed. And that's because the data may be split into separate chunks on the client side. So you'll need to account for that (see the tip at the top of this post for more info).
+{{< /admonition >}}
 
 {{< admonition type=tip title="NPM Package" >}}
 You can find this hook on NPM too (checkout [rolandjitsu/react-fetch-streams](https://github.com/rolandjitsu/react-fetch-streams)).
