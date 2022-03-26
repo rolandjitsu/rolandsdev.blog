@@ -17,6 +17,9 @@ enableGitInfo: yes
 # https://gohugo.io/getting-started/configuration/#enablerobotstxt
 enableRobotsTXT: yes
 
+# https://gohugo.io/getting-started/configuration/#enableemoji
+enableEmoji: yes
+
 # https://gohugo.io/content-management/menus/
 menu:
   main:
