@@ -1,5 +1,5 @@
 # https://gohugo.io/getting-started/configuration/#baseurl
-baseURL: "http://rolandsdev.blog/"
+baseURL: "https://rolandsdev.blog/"
 
 # https://gohugo.io/getting-started/configuration/#defaultcontentlanguage
 defaultContentLanguage: "en"
