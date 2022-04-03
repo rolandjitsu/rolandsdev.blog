@@ -160,6 +160,7 @@ params:
     math:
       enable: no
     comment:
+      enable: yes
       giscus:
         enable: yes
         # owner/repo
