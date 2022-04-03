@@ -11,6 +11,13 @@ Icon
 ## Thumbnails
 ._*
 
+# VSC
+.vscode/*
+!.vscode/tasks.json
+!.vscode/launch.json
+!.vscode/extensions.json
+*.code-workspace
+
 # Hugo
 ## Generated content
 /assets/jsconfig.json
