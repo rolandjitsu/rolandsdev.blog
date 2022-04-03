@@ -159,6 +159,21 @@ params:
       sort: yes
     math:
       enable: no
+    comment:
+      giscus:
+        enable: yes
+        # owner/repo
+        dataRepo: "rolandjitsu/rolandsdev.blog"
+        dataRepoId: "R_kgDOHBwhkg"
+        dataCategory: "General"
+        dataCategoryId: "DIC_kwDOHBwhks4COZWW"
+        dataMapping: "pathname"
+        dataReactionsEnabled: "1"
+        dataEmitMetadata: "0"
+        dataInputPosition: "bottom"
+        lightTheme: "light"
+        darkTheme: "dark"
+        dataLang: "en"
 
   sponsor:
     enable: yes
