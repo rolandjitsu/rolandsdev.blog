@@ -1,7 +1,48 @@
 
 @import url('https://fonts.googleapis.com/css2?family=Fira+Mono:wght@400;700&family=Roboto:wght@300;400;700;900&display=swap');
 
-$global-font-family: 'Roboto', Helvetica Neue, Helvetica, Arial, sans-serif !default;
+$global-font-family: 'Roboto', Helvetica Neue, Helvetica, Arial, sans-serif;
 $code-font-family: Fira Mono, Source Code Pro, Menlo, Consolas, Monaco, monospace;
 
 $custom-scrollbar: false;
+
+// Dark theme based on primer (https://primer.style)
+$global-background-color-dark: #0d1117; // --color-canvas-default
+
+$global-font-color-dark: #c9d1d9; // --color-fg-default; default text color
+$global-font-secondary-color-dark: #8b949e; // --color-fg-muted; meta, summary, etc (secondary text)
+
+$global-border-color-dark: #30363d; // --color-border-default
+
+$global-link-color-dark: #c9d1d9; // --color-fg-default; tag links, user links, etc
+$global-link-hover-color-dark: #fff; // --color-btn-primary-text
+
+$single-link-color-dark: #58a6ff; // --color-accent-fg; primary links
+$single-link-hover-color-dark: #1f6feb; //  --color-accent-emphasis
+
+$selection-color-dark: rgba(56, 139, 253, 0.4); // --color-accent-muted
+
+$header-background-color-dark: #161b22; // --color-canvas-subtle
+$header-hover-color-dark: #fff; // --color-btn-primary-text
+
+$search-background-color-dark: #21262d; // --color-btn-bg
+
+// TODO: Make a PR with this?
+$sponsor-btn-color-dark: #21262d; // --color-btn-bg;
+
+$table-background-color-dark: #161b22; // --color-canvas-subtle
+$table-thead-color-dark: #101419; // based on above, just darker
+
+$blockquote-color-dark: #8b949e; // --color-fg-muted
+
+$pagination-link-color-dark: #8b949e; // --color-fg-muted
+$pagination-link-hover-color-dark: #fff; // --color-btn-primary-text
+
+$code-color-dark: #c9d1d9; // --color-fg-default; used when no language is set
+$code-background-color-dark: #161b22; // --color-canvas-subtle
+$code-info-color-dark: #8b949e; // --color-fg-muted
+
+// TODO: pick colors when we use!
+// $friend-link-background-color-dark: #252627;
+// $friend-link-color-dark: #8b949e;
+// $friend-link-hover-color-dark: #ffffff;
