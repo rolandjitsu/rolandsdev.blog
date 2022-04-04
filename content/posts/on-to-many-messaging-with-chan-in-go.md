@@ -227,7 +227,7 @@ func main() {
 }
 ```
 
-We should be seeing something like (check https://go.dev/play/p/DG8eJacsSGl):
+We should be seeing something like (check [DG8eJacsSGl](https://go.dev/play/p/DG8eJacsSGl)):
 ```text
 {hey}
 {hey}
@@ -265,7 +265,7 @@ func main() {
 }
 ```
 
-It still works, but it doesn't look right (check https://go.dev/play/p/gfjNV3dHfvU):
+It still works, but it doesn't look right (check [gfjNV3dHfvU](https://go.dev/play/p/gfjNV3dHfvU)):
 ```text
 {hey} 2009-11-10 23:00:01 +0000 UTC m=+1.000000001
 {hey} 2009-11-10 23:00:01 +0000 UTC m=+1.000000001
@@ -288,7 +288,7 @@ func (p *piper) setupRcvLoop(source <-chan Data) {
 }
 ```
 
-We're getting blocked by the first pipe because the send action blocks until there's a receiver. So how do we fix this? Well, the simplest way to address this is to discard messages if there are no receivers - not ideal for every scenario, but it'll do (see https://go.dev/play/p/r3s8lJ_JvX1):
+We're getting blocked by the first pipe because the send action blocks until there's a receiver. So how do we fix this? Well, the simplest way to address this is to discard messages if there are no receivers - not ideal for every scenario, but it'll do (see [r3s8lJ_JvX1](https://go.dev/play/p/r3s8lJ_JvX1)):
 ```go
 func (p *piper) setupRcvLoop(source <-chan Data) {
 	for d := range source {
@@ -310,7 +310,7 @@ func (p *piper) setupRcvLoop(source <-chan Data) {
 
 Ok. That didn't work either :exploding_head: ! We're getting a deadlock. And this makes sense as well, because we add our receiver too late, and we missed the message. This is not easy to fix. I mean, there's an easy fix, but it may not be ideal either.
 
-We just need to use a buffered channel with size 1 when we create the receivers/pipes (see https://go.dev/play/p/Ruqmk3QKQT1):
+We just need to use a buffered channel with size 1 when we create the receivers/pipes (see [Ruqmk3QKQT1](https://go.dev/play/p/Ruqmk3QKQT1)):
 ```go
 func (p *piper) Pipe() <-chan Data {
 	p.mux.Lock()
