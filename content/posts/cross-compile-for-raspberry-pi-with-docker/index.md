@@ -221,7 +221,7 @@ docker buildx build -f Dockerfile.hello -o type=local,dest=./bin .
 ```
 
 If you copy the binary over to the Pi and run it, you should be seeing your Pi's model and revision, e.g:
-![hello.cpp output](./hello.png "hello-output.png")
+![hello.cpp output](./hello-output.png "hello-output.png")
 
 While the above example might be good enough to illustrate how we can use Docker to cross-compile, it's probably incomplete without illustrating how to use some of the libs that are usually available on the Pi.
 
@@ -436,7 +436,7 @@ docker buildx build -f Dockerfile.hello-pi -o type=local,dest=./bin .
 ```
 
 And if you copy the binary over to the Pi and run it, you should be seeing your Pi's model and revision and the SoC temperature, e.g:
-![hello-pi.c output](./hello-pi.png "hello-pi-output.png")
+![hello-pi.c output](./hello-pi-output.png "hello-pi-output.png")
 
 And there you go. I hope that this is enough to get you started.
 
