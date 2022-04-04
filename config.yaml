@@ -95,6 +95,18 @@ params:
   # https://github.com/HEIGE-PCloud/DoIt/issues/475
   # bundle: yes
 
+  search:
+    enable: yes
+    # lunr/algolia/fuse
+    type: "fuse"
+    placeholder: ""
+    maxResultLength: 10
+    snippetLength: 30
+    highlightTag: "em"
+    absoluteURL: false
+    fuse:
+      isCaseSensitive: false
+
   header:
     # "fixed"/"normal"/"auto"
     desktopMode: "fixed"
@@ -198,6 +210,15 @@ author:
 # https://gohugo.io/content-management/urls/#permalinks
 permalinks:
   offline: /offline
+
+# Needed for search
+# https://hugodoit.pages.dev/theme-documentation-basics/#search
+outputs:
+  home: ["HTML", "RSS", "JSON"]
+  # page: ["HTML", "MarkDown"]
+  # section: ["HTML", "RSS"]
+  # taxonomy: ["HTML", "RSS"]
+  # taxonomyTerm: ["HTML"]
 
 # https://gohugo.io/getting-started/configuration/#taxonomies
 # https://gohugo.io/content-management/taxonomies#configure-taxonomies
