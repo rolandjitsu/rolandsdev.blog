@@ -4,16 +4,3 @@
     font-weight: 700 !important;
   }
 }
-
-// TODO: Make a PR in source theme to add the option to customise this
-.single {
-  .sponsor {
-    .sponsor-button {
-
-      [theme="dark"] &,
-      [theme="black"] & {
-        background-color: $sponsor-btn-color-dark;
-      }
-    }
-  }
-}
