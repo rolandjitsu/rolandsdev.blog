@@ -25,7 +25,7 @@ As for developing software that can run on it, if you're writing it in C or C++,
 
 And you can probably find many other creative ways developers came up with.
 
-This mean that choosing which way to do it can be difficult, unless you have some clear project requirements.
+This means that choosing which way to do it can be difficult, unless you have some clear project requirements.
 
 For most of the projects that I've been working on, the requirements have been:
 1. No source code on the Pi (and consequently no build tools installed on it)
