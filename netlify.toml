@@ -1,6 +1,8 @@
 [build]
-  command = "hugo"
+  command = "hugo --gc --minify"
   publish = "public"
 
 [build.environment]
-  HUGO_VERSION = "0.94.2"
+  # DoIt v1.0.2 requires Hugo extended >= 0.146.0. Netlify installs the
+  # extended build for modern versions when HUGO_VERSION is set.
+  HUGO_VERSION = "0.164.0"

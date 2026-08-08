@@ -6,11 +6,25 @@
 ## Development
 
 ### Prerequisites:
-Install [Hugo](https://gohugo.io/getting-started/quick-start/):
+Install [Hugo](https://gohugo.io/getting-started/quick-start/) (the **extended** edition, `>= 0.146.0`, as required by the DoIt theme):
 ```bash
 brew install hugo
 ```
 **NOTE** For other platforms, see the [installation guide](https://gohugo.io/getting-started/installing/).
+
+**NOTE** Netlify builds with the Hugo version pinned in [`netlify.toml`](./netlify.toml) (currently `0.164.0`). Keep your local version at or above that to match CI.
+
+After cloning, initialize the theme submodule:
+```bash
+git submodule update --init
+```
+
+To update the DoIt theme to a newer release later:
+```bash
+git -C themes/DoIt fetch --tags
+git -C themes/DoIt checkout <tag>   # e.g. v1.0.2
+git add themes/DoIt && git commit -m "chore: bump DoIt theme"
+```
 
 ### Setup
 These steps were only needed during the initial setup, so this section should be skipped.

@@ -3,8 +3,9 @@ baseURL: "https://rolandsdev.blog/"
 
 # https://gohugo.io/getting-started/configuration/#defaultcontentlanguage
 defaultContentLanguage: "en"
-# https://gohugo.io/getting-started/configuration/#languagecode
-languageCode: "en"
+# https://gohugo.io/getting-started/configuration/#locale
+# (replaces languageCode, deprecated in Hugo v0.158.0)
+locale: "en"
 
 # https://gohugo.io/getting-started/configuration/#title
 title: "Roland's Dev Blog"
@@ -13,12 +14,12 @@ title: "Roland's Dev Blog"
 theme: "DoIt"
 
 # https://gohugo.io/getting-started/configuration/#enablegitinfo
-enableGitInfo: yes
+enableGitInfo: true
 # https://gohugo.io/getting-started/configuration/#enablerobotstxt
-enableRobotsTXT: yes
+enableRobotsTXT: true
 
 # https://gohugo.io/getting-started/configuration/#enableemoji
-enableEmoji: yes
+enableEmoji: true
 
 # https://gohugo.io/content-management/menus/
 menu:
@@ -63,16 +64,16 @@ menu:
 # https://gohugo.io/getting-started/configuration-markup
 markup:
   highlight:
-    codeFences: yes
+    codeFences: true
     lineNoStart: 1
-    lineNos: yes
-    noClasses: no
+    lineNos: true
+    noClasses: false
     style: vs
     tabWidth: 2
 
 # https://hugodoit.pages.dev/theme-documentation-basics/#site-configuration
 params:
-  version: "0.2.X"
+  version: "0.4.X"
 
   title: ""
   description: "A collection of dev guides, tutorials and thoughts on various tech stacks, tools and programming languages."
@@ -87,7 +88,7 @@ params:
   images: ["/images/avatar_sm.png"]
 
   # https://hugodoit.pages.dev/pwa-support
-  enablePWA: yes
+  enablePWA: true
 
   # license: '<a rel="license external nofollow noopener noreffer" href="https://creativecommons.org/licenses/by-nc/4.0/" target="_blank">CC BY-NC 4.0</a>'
 
@@ -96,7 +97,7 @@ params:
   # bundle: yes
 
   search:
-    enable: yes
+    enable: true
     # lunr/algolia/fuse
     type: "fuse"
     placeholder: ""
@@ -115,14 +116,14 @@ params:
     themeChangeMode: "switch"
     title:
       name: "Roland's Dev Blog"
-      typeit: yes
+      typeit: true
 
   footer:
-    enable: yes
-    hugo: yes
+    enable: true
+    hugo: true
     hostedOn: '<a title="Netlify" href="https://www.netlify.com/" target="_blank" rel="noopener noreffer">Netlify</a>'
-    copyright: yes
-    author: yes
+    copyright: true
+    author: true
     # since: 2020
     # license: '<a rel="license external nofollow noopener noreffer" href="https://creativecommons.org/licenses/by-nc/4.0/" target="_blank">CC BY-NC 4.0</a>'
 
@@ -140,41 +141,42 @@ params:
 
   home:
     profile:
-      enable: yes
+      enable: true
       avatarURL: "/images/avatar_sm.webp"
       title: ""
       subtitle: "A collection of dev guides, tutorials and thoughts on various tech stacks, tools and programming languages."
-      social: no
+      social: false
       posts:
-        enable: yes
+        enable: true
         paginate: 4
 
   page:
     # https://hugodoit.pages.dev/theme-documentation-content/#extended-markdown-syntax
-    ruby: no
-    fraction: no
-    fontawesome: yes
-    linkToMarkdown: yes
+    ruby: false
+    fraction: false
+    # NOTE: inline `:fa-*:` icons were removed in DoIt v1.0 (params.page.fontawesome
+    # now hard-errors the build). Use the `fa-icon` shortcode instead if needed.
+    linkToMarkdown: true
     linkToSource: "https://github.com/rolandjitsu/rolandsdev.blog/blob/main/content/{path}"
     linkToEdit: "https://github.com/rolandjitsu/rolandsdev.blog/edit/main/content/{path}"
     linkToReport: "https://github.com/rolandjitsu/rolandsdev.blog/issues/new"
     pageStyle: "normal"
-    seriesNavigation: yes
+    seriesNavigation: true
     toc:
-      enable: yes
-      keepStatic: no
-      auto: yes
+      enable: true
+      keepStatic: false
+      auto: true
     code:
-      copy: yes
+      copy: true
       maxShownLines: 100
     table:
-      sort: yes
+      sort: true
     math:
-      enable: no
+      enable: false
     comment:
-      enable: yes
+      enable: true
       giscus:
-        enable: yes
+        enable: true
         # owner/repo
         dataRepo: "rolandjitsu/rolandsdev.blog"
         dataRepoId: "R_kgDOHBwhkg"
@@ -189,18 +191,13 @@ params:
         dataLang: "en"
 
   sponsor:
-    enable: yes
+    enable: true
     bio: "If you find this post helpful, please consider sponsoring."
     link: "https://github.com/sponsors/rolandjitsu"
     custom: ""
 
   verification:
     google: ""
-
-  analytics:
-    google:
-      id: "UA-129682120-2"
-      anonymizeIP: yes
 
 author:
   name: "rolandjitsu"
