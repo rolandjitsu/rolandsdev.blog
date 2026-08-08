@@ -3,7 +3,7 @@ title: "{{ replace .Name "-" " " | title }}"
 description: ""
 date: {{ .Date }}
 lastmod: {{ .Date }}
-draft: yes
+draft: true
 authors: ["rolandjitsu"]
 
 tags: []
@@ -11,5 +11,5 @@ categories: []
 series: []
 
 toc:
-  enable: no
+  enable: false
 ---
