@@ -16,7 +16,8 @@ toc:
 
 The [Raspberry Pi](https://www.raspberrypi.org/) is a pretty useful tool for quickly prototyping some IoT product, simulating an embedded environment, running a small [Kubernetes cluster](https://www.jeffgeerling.com/tags/turing-pi), etc; there are probably lots of reasons why you'd want to use one (or maybe not?).
 
-As for developing software that can run on it, if you're writing it in C or C++,  there's many ways to go about it:
+As for developing software that can run on it, if you're writing it in C or C++, there's many ways to go about it:
+
 1. Sync the code changes you make on the Pi and build it natively on it (via rsync, scp, [SSHFS](https://www.raspberrypi.org/documentation/remote-access/ssh/sshfs.md), git, etc)
 2. Use [crosstool-ng](https://crosstool-ng.github.io/) to setup a toolchain and use it to cross-compile your software; then copy the resulting binaries onto the Pi
 3. Use a [precompiled toolchain](https://github.com/abhiTronix/raspberry-pi-cross-compilers) to cross-compile the software; then copy the binaries onto the Pi
@@ -28,6 +29,7 @@ And you can probably find many other creative ways developers came up with.
 This means that choosing which way to do it can be difficult, unless you have some clear project requirements.
 
 For most of the projects that I've been working on, the requirements have been:
+
 1. No source code on the Pi (and consequently no build tools installed on it)
 2. Cannot run code inside containers on the Pi (the latency cost for communicating with peripherals is too high - especially when accessing the camera)
 3. Anyone (on any platform) can clone the source code and build the binaries on their machine
@@ -37,24 +39,30 @@ For most of the projects that I've been working on, the requirements have been:
 And after trying most of the options I could find out there, I've found that using [Docker](https://www.docker.com/) and cross-compilation works best. And with the release of [buildx](https://github.com/docker/buildx), it's even easier to build and dump the binaries on the host system.
 
 ## Setup your machine
+
 You need to install:
+
 1. [Docker](https://docs.docker.com/engine) >= `19.03.13`
-2. [buildx(https://github.com/docker/buildx#installing)] >= `v0.4.1 `
+2. [buildx(https://github.com/docker/buildx#installing)] >= `v0.4.1`
 
 ### Setup the builder
+
 You will need to setup a Docker builder instance (see [working with builder instances](https://github.com/docker/buildx#working-with-builder-instances)) that uses the `docker` driver.
 
 Check current builder instances:
+
 ```bash
 docker buildx ls
 ```
 
 If you see an instance that uses the `docker` driver, switch to it (it's usually the `default` instance):
+
 ```bash
 docker buildx use <instance name>
 ```
 
 Otherwise, create a builder:
+
 ```bash
 docker buildx create --name my-builder --driver docker --use
 ```
@@ -63,14 +71,16 @@ docker buildx create --name my-builder --driver docker --use
 You cannot create more than one instance using the `docker` driver.
 {{< /admonition >}}
 
-
 Then inspect and bootstrap it:
+
 ```bash
 docker buildx inspect --bootstrap
 ```
 
 ## Setup the base images
+
 Create a simple base image with the necessary tools to cross-compile:
+
 ```dockerfile
 # Dockerfile.cross
 FROM debian:stretch
@@ -123,6 +133,7 @@ RUN export CMAKE_DIR=cmake-$CMAKE_VERSION && \
 ```
 
 And build it:
+
 ```bash
 docker buildx build -f Dockerfile.cross --tag cross-stretch .
 ```
@@ -136,6 +147,7 @@ To bust the cache, use `--no-cache`.
 {{< /admonition >}}
 
 Now create a base image w/ some common libs usually available on the Pi:
+
 ```dockerfile
 # Dockerfile.cross-pi
 FROM cross-stretch
@@ -174,14 +186,17 @@ RUN RPI_DIR=/raspberrypi && \
 ```
 
 And build it:
+
 ```bash
 docker buildx build -f Dockerfile.cross-pi --tag cross-pi .
 ```
 
 ## Compile some binaries
+
 Now that we have the base images ready, we can go ahead and create a simple programs to illustrate how to cross-compile.
 
 So, let's create a program to print the current Raspberry Pi model and revision:
+
 ```cpp
 // hello.cpp
 #include <iostream>
@@ -200,6 +215,7 @@ int main()
 ```
 
 And the dockerfile for building it:
+
 ```dockerfile
 # Dockerfile.hello
 FROM cross-stretch AS builder
@@ -216,6 +232,7 @@ COPY --from=builder /tmp/bin /
 ```
 
 Now compile the binary:
+
 ```bash
 docker buildx build -f Dockerfile.hello -o type=local,dest=./bin .
 ```
@@ -226,6 +243,7 @@ If you copy the binary over to the Pi and run it, you should be seeing your Pi's
 While the above example might be good enough to illustrate how we can use Docker to cross-compile, it's probably incomplete without illustrating how to use some of the libs that are usually available on the Pi.
 
 Therefore, let's create another program that makes use of the popular [wiringPi](https://github.com/WiringPi/WiringPi) lib and the [libs that interface with the GPU](https://github.com/raspberrypi/userland) (mind the copyright):
+
 ```c
 // hello-pi.c
 /*
@@ -355,6 +373,7 @@ void chop(char *str, size_t n)
 ```
 
 The dockerfile for building it:
+
 ```dockerfile
 # Dockerfile.hello-pi
 FROM cross-pi AS builder
@@ -379,6 +398,7 @@ COPY --from=builder /tmp/bin /
 ```
 
 And the cmake config to compile it:
+
 ```cmake
 # CMakeLists.txt
 cmake_minimum_required(VERSION 3.16)
@@ -431,6 +451,7 @@ target_link_libraries(hello-pi
 ```
 
 Now compile the binary:
+
 ```bash
 docker buildx build -f Dockerfile.hello-pi -o type=local,dest=./bin .
 ```

@@ -19,6 +19,7 @@ This is a continuation of the *common design patterns I found in my old code* se
 Another common pattern I found is the [factory method pattern](https://en.wikipedia.org/wiki/Factory_method_pattern), which is a design pattern used to create different types of objects using the same interface.
 
 This pattern is actually pretty common in Go. Some good example of this are the builtin I/O libraries:
+
 ```go
 package main
 
@@ -50,6 +51,7 @@ func parseCsv(r io.Reader) ([][]string, error) {
 Both the `bytes.NewReader()` and `os.Open()` implement the `io.Reader` interface which comes in handy for the `parseCsv()` method above as we can use it to parse data from multiple sources.
 
 Another scenario when using this design pattern is useful are in unit tests:
+
 ```go
 // somewhere in your code
 func UseMyObj(o MyObj) []byte {
@@ -83,6 +85,7 @@ func (o *mockObj) Read() []byte {
 By making an interface for `MyObj`, we can mock the behaviour of the object in unit tests. You'll probably find this pattern a lot in open source libraries (e.g [periph.io](https://github.com/google/periph)) that provide some sort of testing utils.
 
 Another common occurrence of this pattern are factory functions which are useful when you need to create objects with some defaults:
+
 ```go
 makeObj := MakeObjFactory("A")
 obj1 := makeObj(1)

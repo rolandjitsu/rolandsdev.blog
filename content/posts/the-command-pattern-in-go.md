@@ -23,6 +23,7 @@ Usually, the invoker doesn't know anything about the implementation details of t
 The command is the object that knows about the receiver and its responsibility is to execute methods on the receiver.
 
 Go's [exec](https://golang.org/pkg/os/exec/) package is an example of this pattern:
+
 ```go
 package main
 
@@ -37,6 +38,7 @@ func main() {
 ```
 
 Or the [net/http](https://golang.org/pkg/net/http/) package:
+
 ```go
 package main
 
@@ -54,6 +56,7 @@ func main() {
 Though, it's not straightforward to see which is the invoker and receiver.
 
 But take the following example:
+
 ```go
 p := &Pinger{}
 ping := &Ping{}
@@ -88,11 +91,13 @@ func (pc *PingCmd) Execute() {
 ```
 
 It's easy to see that:
+
 1. `Pinger` is the invoker
 2. `Ping` is the receiver
 3. `PingCmd` is the command
 
 What this pattern essentially allows us is to decouple the action/request logic from the execution. This can be useful in a variety of situations:
+
 * [Undo](https://en.wikipedia.org/wiki/Undo) interactions
 * Remote execution
 * Parallel processing

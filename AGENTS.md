@@ -46,7 +46,7 @@ hugo serve -D --disableFastRender
 
 Example:
 
-```
+```text
 feat: add search
 
 Wire Fuse-based client search; it needs the JSON output enabled on the

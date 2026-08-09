@@ -21,6 +21,7 @@ While there's already [ways to achieve this](https://vsupalov.com/build-docker-i
 Do note that you need to have Docker `18.09+` installed and you need to enable the experimental features for Docker (both for the CLI and the daemon).
 
 To enable the experimental features for the CLI, you just need to add the following to your `~/.docker/config.json` config:
+
 ```json
 {
   "experimental": "enabled"
@@ -34,6 +35,7 @@ If you're using the Docker Desktop version, this option might already be availab
 ![docker desktop](./docker-experimental.png "Docker CLI")
 
 And to enable the experimental features for the daemon, you need to add the following to your `/etc/docker/daemon.json` config:
+
 ```json
 {
   "experimental": true
@@ -46,22 +48,26 @@ The above config file path is for docker running on Linux. If you're running doc
 
 ![docker desktop daemon](./experimental-docker-daemon.png "Docker Engine")
 
-Furthermore, if you're not using  a Linux machine, you need to start the [ssh-agent](https://www.ssh.com/ssh/agent):
+Furthermore, if you're not using a Linux machine, you need to start the [ssh-agent](https://www.ssh.com/ssh/agent):
+
 ```bash
 eval $(ssh-agent)
 ```
 
 And add your current SSH key to the agent:
+
 ```bash
 ssh-add ~/.ssh/id_rsa
 ```
 
 We also need to setup a `known_hosts` file to avoid prompts from SSH when cloning:
+
 ```bash
 ssh-keyscan github.com >> ./known_hosts
 ```
 
 Now create a dockerfile that just clones a private repo:
+
 ```dockerfile
 # syntax = docker/dockerfile:1.1-experimental
 # Dockerfile.priv-repo
@@ -84,6 +90,7 @@ RUN --mount=type=ssh \
 ```
 
 And build a base image off that which we'll use in another image:
+
 ```bash
 docker buildx build -f Dockerfile.priv-repo \
     --ssh default \
@@ -94,6 +101,7 @@ docker buildx build -f Dockerfile.priv-repo \
 ```
 
 Lastly, create a dockerfile that copies whatever was in the private repo to the host:
+
 ```dockerfile
 # Dockerfile
 FROM priv-repo AS builder
@@ -105,6 +113,7 @@ COPY --from=builder /tmp/ /
 ```
 
 And build the image to get the output:
+
 ```bash
 docker buildx build -f Dockerfile -o type=local,dest=./priv-code .
 ```
@@ -112,6 +121,7 @@ docker buildx build -f Dockerfile -o type=local,dest=./priv-code .
 If everything went well, you should see the private repo's content under `./priv-code`.
 
 Things to note:
+
 * The above guide will only work for Github, though, with slight changes it can work for GitLab or others
 * We're using the [secret](https://github.com/moby/buildkit/blob/master/frontend/dockerfile/docs/experimental.md#run---mounttypesecret) feature to pass the `known_hosts` file to the base image, but we can easily run the `ssh-keyscan` just before the `git clone ...`
 * We're configuring git to use SSH when cloning, but this might not work for everyone

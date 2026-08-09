@@ -18,32 +18,40 @@ If you're building a micro-service architecture you'll most likely end up using 
 
 This is where [gRPC](https://www.grpc.io/) fits in. I'm not gonna go through why it's a good choice, most of the time, but let's just say that interoperability between different programming languages becomes a lot better.
 
-There's also a decent amount  of [documentation](https://www.grpc.io/docs/languages/) and a relatively large community where you can find help.
+There's also a decent amount of [documentation](https://www.grpc.io/docs/languages/) and a relatively large community where you can find help.
 
 But when it comes to cross-compiling binaries that use gRPC for a different platform/architecture than your host (ARM in this case), it's not exactly straightforward to do.
 
 Though, to be fair, there's a [cross-compile](https://github.com/grpc/grpc/blob/master/BUILDING.md#cross-compiling) section in the [building gRPC doc](https://github.com/grpc/grpc/blob/master/BUILDING.md) that leads to an [example](https://github.com/grpc/grpc/blob/master/test/distrib/cpp/run_distrib_test_raspberry_pi.sh) which is definitely very helpful. In fact, this post is just an adaptation of that example with a few improvements:
+
 1. We'll use the arm-linux-gnueabihf cross-compiler toolchain instead of the one used in the example
 2. We'll use Docker to build our binaries so that we can run this from any environment
 
 ## Prerequisites
+
 Make sure you have the following tools installed on your machine:
+
 1. [Docker](https://docs.docker.com/engine) >= `19.03.13`
 2. [buildx](https://github.com/docker/buildx#installing) >= `v0.4.1`
 
 ## Setup a Docker builder
+
 Create a Docker builder:
+
 ```bash
 docker buildx create --name my-builder --driver docker-container --use
 ```
 
 Then inspect and bootstrap it:
+
 ```bash
 docker buildx inspect --bootstrap
 ```
 
 ## Setup a Dockerfile to build the binaries
+
 Let's create a simple dockerfile which we'll use to compile our binaries:
+
 ```dockerfile
 FROM debian:buster AS cross-grpc
 
@@ -137,7 +145,8 @@ COPY --from=builder /tmp/bin /
 ```
 
 The above dockerfile has 3 stages:
-1. A cross-compilation environment (build tools, cross-compilers, cmake cross-compilation toolchain, gRPC and dependencies cross-compiled) 
+
+1. A cross-compilation environment (build tools, cross-compilers, cmake cross-compilation toolchain, gRPC and dependencies cross-compiled)
 2. A build env based on the above stage that builds the binaries
 3. An empty image where our binaries will copied to from the previous stage
 
@@ -146,6 +155,7 @@ The above dockerfile has 3 stages:
 Now let's create a simple app that we'll use to test our cross-compilation process.
 
 Create a simple proto file:
+
 ```proto
 // src/hello.proto
 syntax = "proto3";
@@ -166,6 +176,7 @@ message Rep {
 ```
 
 A server that will reply to client requests:
+
 ```cpp
 // src/hello_server.cc
 #include <iostream>
@@ -220,6 +231,7 @@ int main(int argc, char **argv)
 ```
 
 And the client we'll use to make requests:
+
 ```cpp
 // src/hello_client.cc
 #include <ctype.h>
@@ -287,6 +299,7 @@ int main(int argc, char **argv)
 There's not much going on above, just a simple server that will respond with `Hello, <name>!` to client requests and gRPC facilitating the communication between the two.
 
 We'll also need a cmake config that can find the necessary dependencies and generate the sources from our proto file:
+
 ```cmake
 # src/CMakeLists.txt
 cmake_minimum_required(VERSION 3.5.1)
@@ -355,7 +368,9 @@ endforeach()
 ```
 
 ## Compile the binaries
+
 All that's left to do is to compile our binaries:
+
 ```bash
 docker buildx build -f Dockerfile -o type=local,dest=./bin .
 ```

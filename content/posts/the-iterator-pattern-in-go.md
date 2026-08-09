@@ -19,6 +19,7 @@ This is a continuation of the *common design patterns I found in my old code* se
 The [iterator](https://en.wikipedia.org/wiki/Iterator_pattern) pattern is a frequently used design pattern in software and it's very simple. It entails that a collection must provide an iterator that can be used to iterate through its objects.
 
 To put it in simple terms:
+
 ```go
 c := MyCollection{}
 
@@ -31,6 +32,7 @@ for c.Next() {
 Though, I haven't seen this used very often in Go (it doesn't mean it's true). I could only find a single instance of this while going through my code (a Firestore [DocumentIterator](https://pkg.go.dev/cloud.google.com/go/firestore#DocumentIterator)).
 
 Most of the time, I use [channels](https://tour.golang.org/concurrency/2) if performance is not a concern:
+
 ```go
 docs := make(chan Document)
 
@@ -48,6 +50,7 @@ for doc := range docs {
 But if performance is important, channels are not a good idea, and you'd probably be better off if you implement your own iterator (this is debatable - so don't take my word for it).
 
 Let's say you want a simple way to create a range of numbers between two intervals and iterate over that. You could write something like:
+
 ```go
 myRange := &IntRange{Start: 100, End: 200}
 

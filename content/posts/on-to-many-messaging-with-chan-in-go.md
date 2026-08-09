@@ -15,6 +15,7 @@ toc:
 ---
 
 The [chan](https://go.dev/ref/spec#Channel_types) type in Go is a mechanism which can be used to send or receive data from one function to another. E.g:
+
 ```go
 func main() {
     c := make(chan string)
@@ -34,6 +35,7 @@ func printHello(msgChan <-chan string) {
 Channels can be *bidirectional* (`chan string`) or *directional* (`chan <- string` sender/`<-chan string` receiver). And they operate like FIFO queues.
 
 There's also *unbuffered* (`make(chan string)`) and *buffered* (`make(chan string, 10)`) channels. The difference b/t the 2 is that buffered channels will not block on send until the buffer is full. E.g:
+
 ```go
 func main() {
     c := make(chan string, 2)
@@ -49,6 +51,7 @@ func main() {
 ```
 
 Similarly, the receiver end won't block until the buffer is empty:
+
 ```go
 func main() {
     c := make(chan string, 2)
@@ -59,6 +62,7 @@ func main() {
 ```
 
 Another important feature of channels is that if there are many receivers, only one of the receivers will get the message (so a one-to-one or many-to-one data flow). E.g:
+
 ```go
 func main() {
     var wg sync.WaitGroup
@@ -88,6 +92,7 @@ So you will most likely end up using a pkg like [RxGo](https://github.com/Reacti
 I usually tend to use whatever pkgs I find that provide the features I'm interested in, but sometimes the implementation is complicated and difficult to debug. Or sometimes I just want to learn how it's done, and I end up implementing functionality from scratch (not the wisest thing to do :laughing: ).
 
 So how would you go about implementing the aforementioned pattern? Well, it's not that complicated. First, let's start with an interface:
+
 ```go
 // NewPiper creates a piper interface that will
 // pipe data from a source chan to many receivers.
@@ -114,6 +119,7 @@ So that looks pretty simple. But how about the implementation? That's not compli
 There's a few ways to go about it, and the one I find most easy to understand is using some sort of bookkeeping. What I mean by that is that we will need to return a new channel every time `Pipe()` is called and then keep track of these channels so that we can send messages to each when the source channel sends.
 
 So let's create a struct that implements our interface:
+
 ```go
 func NewPiper(source <-chan Data) Piper {
     return &piper{
@@ -133,6 +139,7 @@ func (p *piper) Pipe() <-chan Data {
 ```
 
 Then let's add some logic to read from the source and forward the messages to our channels:
+
 ```go
 func NewPiper(source <-chan Data) Piper {
 	p := &piper{
@@ -152,6 +159,7 @@ func (p *piper) setupRcvLoop(source <-chan Data) {
 ```
 
 We should probably also make sure we close the channels we create when the source is closed:
+
 ```go
 func (p *piper) setupRcvLoop(source <-chan Data) {
 	for d := range source {
@@ -167,6 +175,7 @@ func (p *piper) setupRcvLoop(source <-chan Data) {
 ```
 
 And maybe address concurrency concerns:
+
 ```go
 type piper struct {
 	mux   sync.RWMutex
@@ -197,6 +206,7 @@ func (p *piper) setupRcvLoop(source <-chan Data) {
 ```
 
 So far, so good. Let's test it:
+
 ```go
 func main() {
     // the source
@@ -228,12 +238,14 @@ func main() {
 ```
 
 We should be seeing something like (check [DG8eJacsSGl](https://go.dev/play/p/DG8eJacsSGl)):
+
 ```text
 {hey}
 {hey}
 ```
 
 Great. It seems to work. But what if one of the receivers blocks because it's doing some work? Let's see what happens:
+
 ```go
 func main() {
     // the source
@@ -266,12 +278,14 @@ func main() {
 ```
 
 It still works, but it doesn't look right (check [gfjNV3dHfvU](https://go.dev/play/p/gfjNV3dHfvU)):
+
 ```text
 {hey} 2009-11-10 23:00:01 +0000 UTC m=+1.000000001
 {hey} 2009-11-10 23:00:01 +0000 UTC m=+1.000000001
 ```
 
 It seems like both pipes received the msg at the same time. That's not exactly great :disappointed: . But that kind of makes sense. If we take a closer look at:
+
 ```go
 func (p *piper) setupRcvLoop(source <-chan Data) {
 	for d := range source {
@@ -289,6 +303,7 @@ func (p *piper) setupRcvLoop(source <-chan Data) {
 ```
 
 We're getting blocked by the first pipe because the send action blocks until there's a receiver. So how do we fix this? Well, the simplest way to address this is to discard messages if there are no receivers - not ideal for every scenario, but it'll do (see [r3s8lJ_JvX1](https://go.dev/play/p/r3s8lJ_JvX1)):
+
 ```go
 func (p *piper) setupRcvLoop(source <-chan Data) {
 	for d := range source {
@@ -311,6 +326,7 @@ func (p *piper) setupRcvLoop(source <-chan Data) {
 Ok. That didn't work either :exploding_head: ! We're getting a deadlock. And this makes sense as well, because we add our receiver too late, and we missed the message. This is not easy to fix. I mean, there's an easy fix, but it may not be ideal either.
 
 We just need to use a buffered channel with size 1 when we create the receivers/pipes (see [Ruqmk3QKQT1](https://go.dev/play/p/Ruqmk3QKQT1)):
+
 ```go
 func (p *piper) Pipe() <-chan Data {
 	p.mux.Lock()
@@ -322,6 +338,7 @@ func (p *piper) Pipe() <-chan Data {
 ```
 
 And now we get what we expect:
+
 ```text
 {hey} 2009-11-10 23:00:00 +0000 UTC m=+0.000000001
 {hey} 2009-11-10 23:00:01 +0000 UTC m=+1.000000001
