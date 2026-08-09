@@ -23,11 +23,13 @@ The reason for that was that the struct had some properties that were slices of 
 And this is actually what the [prototype](https://en.wikipedia.org/wiki/Prototype_pattern) design pattern is about. It's a design pattern that simply involves making copies of objects instead of creating new instances.
 
 This sort of pattern can be useful when:
+
 * creating instances of an object is time consuming or resource intensive (slow database queries, etc)
 * making copies of an object is complex (deep copies, private members, etc - the same scenario as I described above)
 * the object is exposed as an interface
 
 To get an idea of what it looks like in practice, consider the following example:
+
 ```go
 obj := NewObj(1)
 copy := obj.Clone()
@@ -54,6 +56,7 @@ func (o *myObj) Clone() *MyObj {
 ```
 
 The above example has 2 main reasons for applying the prototype design pattern:
+
 1. Our object is an interface
 2. There's a private property
 

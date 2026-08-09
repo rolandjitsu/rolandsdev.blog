@@ -13,11 +13,13 @@ series: ["Design Patterns in Go"]
 toc:
   enable: no
 ---
+
 This is a continuation of the *common design patterns I found in my old code* series, which I started in a previous post.
 
 The [observer](https://en.wikipedia.org/wiki/Observer_pattern) pattern is a design pattern in which an object (a **subject**) keeps track of all of its dependents (**observers**) and notifies them of any state changes.
 
 In Go, the closest example of this pattern are the builtin [channels](https://tour.golang.org/concurrency/2) and the use of [goroutines](https://gobyexample.com/goroutines):
+
 ```go
 sub := make(chan interface{})
 
@@ -35,6 +37,7 @@ Though, for multiple observers to be notified, you need to send the message once
 Another example is the [rxjs](https://www.learnrxjs.io) lib and accompanying libs for other languages.
 
 And to illustrate how an implementation of this pattern looks like, check the following example:
+
 ```go
 sub := NewSubject()
 

@@ -18,7 +18,7 @@ It's been some time since I have posted anything (I recently became a father, so
 
 I've noticed some time in November that my blog was throwing a 500 and I just spent maybe 5 minutes to check the logs on the VM where it was running (GCP) to see why. Everything seemed ok (nginx was up and [ghost](https://ghost.org/) showed no issues either).
 
-So I thought to myself: "*well, it's probably gonna take some time to investigate wtf is going on and I don't have time right now, I'm gonna do it maybe next week*." So I just stopped the instance so it doesn't incur cost.  And here we are, 5 months later and I still didn't take the time to investigate the issue :laughing:
+So I thought to myself: "*well, it's probably gonna take some time to investigate wtf is going on and I don't have time right now, I'm gonna do it maybe next week*." So I just stopped the instance so it doesn't incur cost. And here we are, 5 months later and I still didn't take the time to investigate the issue :laughing:
 
 During that time I also found [Hugo](https://gohugo.io/) - I was looking for an easy way to write some docs for some work related stuff - and I said to myself: "*if I can run this for free and I cannot find out why ghost doesn't work, I'll switch to this*".
 

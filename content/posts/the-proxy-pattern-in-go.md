@@ -19,6 +19,7 @@ This is a continuation of the *common design patterns I found in my old code* se
 The [proxy](https://en.wikipedia.org/wiki/Proxy_pattern) pattern is a design pattern in which a class (**proxy**) acts as an interface to something else. The proxy could be an interface to anything: a network connection, another class, a file, etc.
 
 A proxy can be useful in a variety of situations:
+
 * A frontend for load balancing
 * Hide private infrastructure
 * Caching layer
@@ -27,6 +28,7 @@ A proxy can be useful in a variety of situations:
 A good example of a proxy that can be used as a load balancer (and other purposes) is [nginx](https://www.nginx.com/) or [net/http/httputil](https://pkg.go.dev/net/http/httputil) (the `ReverseProxy`).
 
 To illustrate how to use this pattern in Go, let's implement a simple caching layer for files to speed up multiple reads for the same files:
+
 ```go
 package fileproxy
 
@@ -83,6 +85,7 @@ var _ FileProxy = &fileProxy{}
 ```
 
 And if you'd run a simple benchmark:
+
 ```go
 func BenchmarkReadFile(b *testing.B) {
   for n := 0; n < b.N; n++ {

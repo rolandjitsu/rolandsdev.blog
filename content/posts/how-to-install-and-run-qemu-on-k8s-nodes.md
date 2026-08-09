@@ -23,6 +23,7 @@ There're probably ways to make sure only one pod sets up binfmt, but when runnin
 But there's light at the end of the tunnel. There's the [DaemonSet](https://kubernetes.io/docs/concepts/workloads/controllers/daemonset/) which we can use to run binfmt once on any newly created node.
 
 You just need to create a simple config with:
+
 ```yaml
 # Run binfmt setup on any new node
 apiVersion: apps/v1
@@ -69,6 +70,7 @@ spec:
 ```
 
 And apply it:
+
 ```bash
 kubectl apply -f ./daemonset.yaml
 ```
@@ -77,7 +79,9 @@ That's it. binfmt should now be setup on your cluster.
 
 {{< admonition type=note >}}
 If later on you decide on a different approach, you can delete the daemonset and any resources associated with it:
+
 ```bash
 kubectl delete daemonset binfmt --namespace=default
 ```
+
 {{< /admonition >}}

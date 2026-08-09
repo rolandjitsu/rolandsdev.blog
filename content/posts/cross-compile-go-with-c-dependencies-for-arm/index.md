@@ -21,6 +21,7 @@ But sometimes, you may need to use some lib/code written in C that hasn't been p
 Though, I hope that if you continue reading, it will become just a little easier.
 
 ## Prerequisites
+
 Throughout this guide, we'll use Docker to build our binaries, so make sure you've installed the following:
 
 1. [Docker](https://docs.docker.com/engine) >= `19.03.13`
@@ -29,7 +30,9 @@ Throughout this guide, we'll use Docker to build our binaries, so make sure you'
 You'll also need to [enable the experimental features for Docker]({{< ref "/posts/how-to-enable-experimental-docker-in-github-workflows" >}}).
 
 ## Setup
+
 Let's create a go project:
+
 ```bash
 go mod init github.com/my-username/go-cross
 ```
@@ -39,6 +42,7 @@ Make sure you create a project dir for this and run the above command from the r
 {{< /admonition >}}
 
 Now let's create a simple `hello` package:
+
 ```go
 // pkg/hello/hello.go
 package hello
@@ -61,6 +65,7 @@ func Greet(name string) {
 ```
 
 And the C code that the package is referencing:
+
 ```c
 // pkg/hello/hello.h
 #ifndef HELLO_H_
@@ -87,6 +92,7 @@ char *greet(const char *name, size_t size)
 ```
 
 Now we need a simple cmd that uses the package:
+
 ```go
 // cmd/hello/main.go
 package main
@@ -110,6 +116,7 @@ func main() {
 ```
 
 And finally, we need a simple dockerfile to build our `hello` binary:
+
 ```dockerfile
 # syntax = docker/dockerfile:1.1-experimental
 # Dockerfile.hello
@@ -155,6 +162,7 @@ COPY --from=builder /tmp/bin /
 ```
 
 The project dir should end up similar to the following one:
+
 ```text
 .
 ├── Dockerfile.hello
@@ -170,7 +178,9 @@ The project dir should end up similar to the following one:
 ```
 
 ## Build
+
 Let's build the `hello` binary:
+
 ```bash
 docker buildx build -f Dockerfile.hello -o type=local,dest=./bin .
 ```
@@ -178,6 +188,7 @@ docker buildx build -f Dockerfile.hello -o type=local,dest=./bin .
 If everything went well, you should find the binary in `./bin/`. Now just copy it to your target host and run it.
 
 You could also build the binary on your host:
+
 ```bash
 go build -race -o ./bin/hello cmd/hello/main.go
 ```

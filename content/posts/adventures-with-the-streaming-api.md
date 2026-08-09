@@ -23,6 +23,7 @@ As described in the prev post, I could have went with either [WebSockets](https:
 So everything went great and smooth. The streaming endpoints were running w/o issues for quite some time. Well, that's what I thought.
 
 While developing this web app, I occasionally saw some error in the console:
+
 ```text
 SyntaxError: Unexpected token { in JSON at position 119
     at streamData (<anonymous>:20:40)
@@ -41,14 +42,16 @@ So if the issue wasn't there, then it must be the client. So I spent some more t
 At that point, it's probably been about a couple of days and I had no answer. So I realized I'll have to open some issues somewhere to report this and maybe get some help. My thinking was *"it must be either in the echo library, the net/http/httputil or net/http libs"*. I was hopeless :weary_face:
 
 So I started taking the parts responsible for streaming and setting up a simple echo server and started testing in the browser. But the environment I was dealing with was a bit more convoluted/complex:
+
 1. The API was running on an embedded device (somewhere remote)
 2. The API was cross-compiled
 3. The API is served over HTTPS (HTTP/2) using self signed certs
-3. There was a reverse proxy on top of the API (this was to address a different issue we had with self signed certs and how browsers deal with them)
-3. The client was running on my machine
-4. There was a VPN setup b/t my machine and the device so that I can develop the app (I know, I could have mocked the APIs, but that's another problem for later)
+4. There was a reverse proxy on top of the API (this was to address a different issue we had with self signed certs and how browsers deal with them)
+5. The client was running on my machine
+6. There was a VPN setup b/t my machine and the device so that I can develop the app (I know, I could have mocked the APIs, but that's another problem for later)
 
 So I went for the most obvious scenarios to try to reproduce the issue in isolation:
+
 1. An [echo server](https://echo.labstack.com/) <> an [echo reverse proxy middleware](https://echo.labstack.com/middleware/proxy/) <> a browser client (a simple js func to read the stream and parse to JSON) - closer to my env
 2. An echo server <> a [net/http/httputil](https://pkg.go.dev/net/http/httputil) reverse proxy <> a browser client - to eliminate the echo middleware as an issue
 3. A `net/http` <> a `net/http/httputil` reverse proxy <> a browser client - to remove the echo framework as having the issue
@@ -56,6 +59,7 @@ So I went for the most obvious scenarios to try to reproduce the issue in isolat
 5. All of the above but with a Go client instead of a browser one
 
 At the same time as I was adding the above scenarios to a repo, I started opening issues:
+
 1. [labstack/echo#2125](https://github.com/labstack/echo/issues/2125)
 2. [golang/go#51646](https://github.com/golang/go/issues/51646)
 
@@ -63,18 +67,24 @@ So as you can see, I was pretty convinced the issue was on the backend. But as I
 
 1. Firefox was not failing around the same time as Chrome (Chrome at the 25 min mark, Firefox had inconsistent times)
 2. Firefox was also giving me different errors
+
 ```text
 SyntaxError: JSON.parse: unexpected non-whitespace character after JSON data at line 2 column 1 of the JSON data
 ```
+
 3. Firefox was also breaking when clearing the console, but with a different error :exploding_head:
+
 ```text
 SyntaxError: JSON.parse: unterminated string at line 1 column 445 of the JSON data
 ```
+
 4. At least Edge was behaving more like Chrome, but then I accidentally went fullscreen and then when I went back to normal, I got the same error as Chrome - later on also in Firefox nad Chrome
+
 ```text
 SyntaxError: Unexpected token { in JSON at position 119
     at streamData (<anonymous>:20:40)
 ```
+
 5. I could not reproduce the issue when using the Go client
 6. In Safari I only got the issue after the 25 min period
 
@@ -83,6 +93,7 @@ So now I was confused and lost. But at no point did it occur to me that maybe, j
 And to add to the pain, [golang/go#51646](https://github.com/golang/go/issues/51646) got closed because my issue didn't seem like a bug (and it wasn't). So I got pretty frustrated with [@mengzhuo](https://github.com/mengzhuo) and I might have overreacted a bit in one of my replies :rolling_eyes: .
 
 Around this time I was considering to just add a simple hack:
+
 ```js
 ...
 try {
@@ -98,6 +109,7 @@ try {
 ```
 
 But then, about a day later, [@seankhliao](https://github.com/seankhliao) kindly responded with:
+
 ```text
 Adding some extra logging, Go sends the output within a single write.
 On the browser/js side, it's a data stream, and a single json message can be spread over 2 reads, eg I got:
@@ -116,6 +128,7 @@ The key information was `and a single json message can be spread over 2 reads`!
 What I failed to understand while I was reading the [ReadableStreamDefaultReader](https://developer.mozilla.org/en-US/docs/Web/API/ReadableStreamDefaultReader) documentation was that the stream chunks do not end on line boundaries (not necessarily). And combined with the [streaming response example](https://echo.labstack.com/cookbook/streaming-response/) from echo, I assumed that every message/data chunk I get from the reader is a JSON string (since that's what I was sending from the API).
 
 Having that info, after a quick search, I found [handling text line by line](https://developer.mozilla.org/en-US/docs/Web/API/ReadableStreamDefaultReader/read#example_2_-_handling_text_line_by_line) which made it easy to adjust the function I had to account for the JSON being split across multiple chunks. And it looks something like this:
+
 ```js
 async function streamData(url) {
     const res = await fetch(url);

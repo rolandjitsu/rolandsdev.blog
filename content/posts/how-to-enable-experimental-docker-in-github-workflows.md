@@ -19,6 +19,7 @@ If you're using [Github's workflows](https://docs.github.com/en/free-pro-team@la
 When running natively on Linux or macOS, it's pretty easy.
 
 To enable the experimental features for the CLI, you just need to add the following to your `~/.docker/config.json` config:
+
 ```json
 {
   "experimental": "enabled"
@@ -26,6 +27,7 @@ To enable the experimental features for the CLI, you just need to add the follow
 ```
 
 And to enable the experimental features for the daemon, you need to add the following to your `/etc/docker/daemon.json` config:
+
 ```json
 {
   "experimental": true
@@ -33,6 +35,7 @@ And to enable the experimental features for the daemon, you need to add the foll
 ```
 
 The Github workflow setup is no different:
+
 ```yaml
 name: Stuff builder
 on:

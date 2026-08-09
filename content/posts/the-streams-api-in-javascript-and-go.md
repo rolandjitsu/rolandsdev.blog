@@ -21,6 +21,7 @@ Checkout [Adventures with the Streaming API]({{< ref "/posts/adventures-with-the
 If you ever had to build a realtime web app and you've built yourself a [REST](https://restfulapi.net/) backend (or you need to use same legacy REST backend), you most likely stumbled upon a pretty common issue: how do I stream a bunch of data from the backend to make it seem it's updated in realtime?
 
 There's a bunch of ways to do this:
+
 1. You can use [long polling](https://javascript.info/long-polling); but this may add some networking overhead (creating and tearing down connections every time you need data is not very efficient)
 2. You can switch to [WebSockets](https://developer.mozilla.org/en-US/docs/Web/API/WebSockets_API); but this means you need yo reimplement your API
 3. You can use the [Streams API](https://developer.mozilla.org/en-US/docs/Web/API/Streams_API); you only need to update your API implementation to support it
@@ -30,7 +31,9 @@ Do note that the streams API is an experimental technology and currently a [LS](
 For the purpose of illustrating how the server and client implementations will look like, we'll create a simple counter app that get's a new value every second from the backend.
 
 ## Server
+
 We'll use [echo](https://echo.labstack.com/) to expose our counter endpoint:
+
 ```go
 // main.go
 package main
@@ -83,16 +86,19 @@ func getCounter(c echo.Context) error {
 ```
 
 To start it just run:
+
 ```bash
 go run ./main.go
 ```
 
 And if you run:
+
 ```bash
 curl http://localhost:9000/counter
 ```
 
 You should get a bunch of JSON messages:
+
 ```text
 {"count":0}
 {"count":1}
@@ -105,12 +111,15 @@ You should get a bunch of JSON messages:
 ```
 
 ## Client
+
 We'll use [create-react-app](https://create-react-app.dev/) to setup a simple app:
+
 ```bash
 create-react-app streams-api
 ```
 
 Now let's make a simple react hook that will just fetch and stream data from a URL (so we can reuse it with any endpoint):
+
 ```js
 // src/stream.js
 import {
@@ -193,6 +202,7 @@ You can find this hook on NPM too (checkout [rolandjitsu/react-fetch-streams](ht
 {{< /admonition >}}
 
 Now let's use this hook with our counter endpoint:
+
 ```js
 // src/App.js
 import {useMemo} from 'react';
@@ -211,6 +221,7 @@ function App(props) {
 ```
 
 And now run the app:
+
 ```bash
 yarn start
 ```

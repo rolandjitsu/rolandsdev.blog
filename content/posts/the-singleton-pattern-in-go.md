@@ -25,6 +25,7 @@ What that means is that you will share the same struct instance throughout your 
 Say you're building an API that needs to query some data from somewhere. And the database you use doesn't allow for multiple connections from the same host.
 
 A simple approach to this is to share the connection, so you'd end up with something similar to the following:
+
 ```go
 // cmd/api/main.go
 package main
