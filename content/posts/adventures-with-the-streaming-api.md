@@ -29,7 +29,7 @@ SyntaxError: Unexpected token { in JSON at position 119
     at streamData (<anonymous>:20:40)
 ```
 
-But it happened so randomly and seldom that I just ignored it for quite some time. It also only seemed to happen after leaving the app running for quite some time (at that point it seemd like hours - but it turned out to be around 25 minutes pretty consistently).
+But it happened so randomly and seldom that I just ignored it for quite some time. It also only seemed to happen after leaving the app running for quite some time (at that point it seemed like hours - but it turned out to be around 25 minutes pretty consistently).
 
 So time went by and the day of field testing got closer and closer (when we actually test our devices in the field). So did my anxiety :laughing: . But I was not worried at all about this and I actually forgot about it. But then I started seeing the issue more often and during one of the field tests I noticed some states were not updating :exploding_head: .
 
