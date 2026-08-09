@@ -1,0 +1,10 @@
+# Conventional Commits linting (see AGENTS.md).
+extends:
+  - "@commitlint/config-conventional"
+rules:
+  # The types this repo uses, per AGENTS.md. Matches config-conventional's
+  # default, listed here so the allowed set is explicit.
+  type-enum:
+    - 2
+    - always
+    - [build, chore, ci, docs, feat, fix, perf, refactor, revert, style, test]

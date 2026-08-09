@@ -1,0 +1,6 @@
+# typos spell-checker config: https://github.com/crate-ci/typos
+# public/ and resources/ are gitignored and skipped automatically. The DoIt
+# theme is a submodule of vendored code (minified JS) that trips the checker,
+# so exclude it explicitly.
+[files]
+extend-exclude = ["themes/"]

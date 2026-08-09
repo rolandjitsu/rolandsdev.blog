@@ -1,0 +1,51 @@
+name: Links
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+  # External links rot independently of our changes; sweep them weekly instead
+  # of blocking every PR on a third-party outage.
+  schedule:
+    - cron: "0 6 * * 1"
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  links:
+    name: Link check
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          submodules: recursive
+      - name: Resolve pinned Hugo version
+        id: hugo
+        run: echo "version=$(sed -n 's/.*HUGO_VERSION = "\(.*\)".*/\1/p' netlify.toml)" >> "$GITHUB_OUTPUT"
+      - uses: peaceiris/actions-hugo@v3
+        with:
+          hugo-version: ${{ steps.hugo.outputs.version }}
+          extended: true
+      - name: Build
+        run: hugo --gc --minify
+
+      # Every push/PR: internal links only. Offline, deterministic, no network.
+      - name: Check internal links
+        uses: lycheeverse/lychee-action@v2
+        with:
+          args: --offline --root-dir "${{ github.workspace }}/public" "./public/**/*.html"
+          fail: true
+
+      # Scheduled/manual: also hit external URLs to catch link rot.
+      - name: Check external links
+        if: github.event_name == 'schedule' || github.event_name == 'workflow_dispatch'
+        uses: lycheeverse/lychee-action@v2
+        with:
+          args: --root-dir "${{ github.workspace }}/public" --max-retries 2 --timeout 20 "./public/**/*.html"
+          fail: true

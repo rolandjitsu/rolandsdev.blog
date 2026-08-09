@@ -1,0 +1,7 @@
+# rumdl (Rust markdownlint) config: https://github.com/rvben/rumdl
+[global]
+# .editorconfig turns max_line_length off for Markdown; prose and fenced code
+# run long on purpose, so line-length (MD013) would only be noise.
+disable = ["MD013"]
+# Vendored theme and Hugo build output are not ours to lint.
+exclude = ["themes", "public", "resources"]
