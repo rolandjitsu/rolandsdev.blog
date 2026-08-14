@@ -145,10 +145,14 @@ params:
       avatarURL: "/images/avatar_sm.webp"
       title: ""
       subtitle: "A collection of dev guides, tutorials and thoughts on various tech stacks, tools and programming languages."
-      social: false
+      social: true
       posts:
         enable: true
         paginate: 4
+
+  # Social links rendered on the home profile (keys map to themes/DoIt/assets/data/social.yml)
+  social:
+    RSS: true
 
   page:
     # https://hugodoit.pages.dev/theme-documentation-content/#extended-markdown-syntax
