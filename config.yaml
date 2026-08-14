@@ -203,6 +203,14 @@ params:
   verification:
     google: ""
 
+  # https://hugodoit.pages.dev/theme-documentation-extended-features/#analytics
+  # Cloudflare Web Analytics (free, cookieless — no GDPR consent banner needed).
+  # The theme injects the beacon script; we only supply the site token.
+  analytics:
+    enable: true
+    cloudflare:
+      token: "192171eab31648f784d78dd36d9cf1d6"
+
 author:
   name: "rolandjitsu"
   email: "rolandjitsu@gmail.com"
