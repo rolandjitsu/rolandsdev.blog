@@ -16,7 +16,7 @@ toc:
 
 It's been a while. A long while :sweat_smile: .
 
-The last time I wrote here I opened with almost the same line - back then the excuse was becoming a father. This time it's bigger: I packed up my life in Singapore and moved to Tokyo. That was October 2024, so this update is running about two years late :grimacing: .
+The last time I wrote here I opened with almost the same line - back then the excuse was becoming a father. This time it's ~~bigger~~ (well, nothing's really bigger than becoming a father) this: I packed up my life in Singapore and moved to Tokyo. That was October 2024, so this update is running about two years late :grimacing: .
 
 So here's the catch-up: why I left, what the move actually took (spoiler: nothing like what you see on YouTube), and what I'm building now.
 
