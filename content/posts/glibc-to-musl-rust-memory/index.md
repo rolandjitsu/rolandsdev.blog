@@ -152,3 +152,7 @@ Reworking the architecture wasn't something I could take on at that point, and t
 4. **Verbose logging isn't free.** A `trace`-level subscriber under load was worth ~1GB by itself. Make your log level tunable at runtime: crank it when you're debugging, keep it sane in prod.
 
 The takeaway: I spent days optimizing the thing I *assumed* was the problem (my pipeline), and the biggest wins came from things I wasn't even looking at - the toolchain and the logger. Sometimes the fastest way to cut memory isn't in your code at all.
+
+## Update 01.09.2026
+
+I've published a variation of the weight-based mpsc channel as a crate: [weighted-mpsc](https://crates.io/crates/weighted-mpsc). Source available at [rolandjitsu/weighted-mpsc](https://github.com/rolandjitsu/weighted-mpsc).
