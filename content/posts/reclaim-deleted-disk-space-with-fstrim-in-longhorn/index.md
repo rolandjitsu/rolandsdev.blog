@@ -8,7 +8,7 @@ authors: ["rolandjitsu"]
 
 tags: ["kubernetes", "longhorn", "garage", "harbor", "storage"]
 categories: ["DevOps"]
-series: []
+series: ["an oci registry for ci"]
 
 toc:
   enable: true
