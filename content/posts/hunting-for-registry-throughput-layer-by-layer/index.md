@@ -98,7 +98,7 @@ A couple of things improved it:
 
 Also found while chasing why one node's pulls were slow: a batch of worker nodes still had **1GbE NICs** - cold pulls on them capped at ~114 MB/s, which is just 1GbE line rate. Check the client's NIC before blaming the registry.
 
-## The twist: single-stream barely improved
+## The actual limit: Garage's read path
 
 So: blobs bypass the proxies, crypto is hardware-speed, the overlay is at line rate, queues are more than enough. Single-stream pull throughput after all of it: **~180 MB/s under load, ~260 idle**. Essentially the post-`block_size` number from fix #2.
 
@@ -131,7 +131,7 @@ The old registry could be *faster* on a good day - and would intermittently stal
 1. **Measure per layer, removing one variable at a time.** Direct vs +LB vs +proxy told us in one afternoon what weeks of whole-system tuning would not have.
 2. **Separate the data plane from the control plane.** A registry should answer "where are the bytes", not serve them. The 302-redirect-to-S3 pattern removed two proxy hops and was worth 8.5x per stream.
 3. **Verify hardware acceleration actually works.** A CPU flag in a VM is a claim, not a fact - `openssl speed` confirms it, and the negotiated TLS cipher is a cheap tell.
-4. **Overlay networks cost per-flow CPU**, and the cost varies by node pair and load - measure before declaring a ceiling. Multi-queue lifts aggregate throughput only; DirectRouting raised the single-flow network ceiling too (2.3x for us) - it just could not lift a registry stream that was never network-bound.
+4. **Overlay networks cost per-flow CPU**, and the cost varies by node pair and load - measure before declaring a ceiling. Multi-queue lifts aggregate throughput only; DirectRouting raised the single-flow network ceiling too (2.3x for us) - it just could not improve a registry stream that was never network-bound.
 5. **Know whether your workload is single-stream or aggregate.** We kept fixing the network's single-flow ceiling while Garage's per-GET serving sat below every one of them. The fixes still mattered - for the fleet, not for one stream.
 6. **Pull time is dominated by image size and unpack**, not registry throughput. The best optimization available was never in the registry: fewer and smaller image layers, and better layer caching.
 
