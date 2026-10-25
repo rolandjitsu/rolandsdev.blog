@@ -1,8 +1,8 @@
 ---
 title: "Replacing our CI registry with Harbor on Garage"
-description: "Part 1 of a series: why desploy a new registry, the Harbor + Garage + Longhorn design, a replication-factor lesson, and how faster pulls broke the k8s apiserver."
+description: "Part 1 of a series: why deploy a new registry, the Harbor + Garage + Longhorn design, a replication-factor lesson, and how faster pulls broke the k8s apiserver."
 date: 2026-10-18T16:00:00+09:00
-lastmod: 2026-10-24T17:00:00+09:00
+lastmod: 2026-10-25T16:30:00+09:00
 draft: false
 authors: ["rolandjitsu"]
 
@@ -20,7 +20,7 @@ This is part 1: why we built it, the design, and the things that broke before it
 
 ## Why a new registry
 
-The old registry had served us well for years, but CI outgrew it. Under load, large-image pushes would fail with 502/503/504, and pulls would stall - at the worst moments throughput dropped to single-digit Mbit/s. Some stats measured over a week: **12.2% of all image pulls took more than 5 minutes**, 6% more than 10 minutes. A slow pull wasn't just slow - a job that stalled pulling its image ran out its 1-hour timeout and git killed, wasting a full compute-hour. When we classified failed CI jobs by cause, roughly **1 in 5 traced back to the registry**.
+The old registry had served us well for years, but CI outgrew it. Under load, large-image pushes would fail with 502/503/504, and pulls would stall - at the worst moments throughput dropped to single-digit Mbit/s. Some stats measured over a week: **12.2% of all image pulls took more than 5 minutes**, 6% more than 10 minutes. A slow pull wasn't just slow - a job that stalled pulling its image ran out its 1-hour timeout and got killed, wasting a full compute-hour. When we classified failed CI jobs by cause, roughly **1 in 5 traced back to the registry**.
 
 So the goals for the replacement, roughly in order:
 
@@ -37,7 +37,7 @@ The request path, as first deployed:
 
 {{< mermaid >}}
 flowchart LR
-    c["containerd (CI node)"] -->|pulls + pushes, TLS| t["Traefik (ingress)"]
+    c["container runtime (CI node)"] -->|pulls + pushes, TLS| t["Traefik (ingress)"]
     t --> h["Harbor core + registry"]
     h -->|"S3 API"| g[("Garage, 3 nodes")]
 {{< /mermaid >}}
