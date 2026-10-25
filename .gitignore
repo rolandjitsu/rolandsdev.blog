@@ -27,3 +27,7 @@ hugo_stats.json
 
 ## Lock file while building
 .hugo_build.lock
+
+# Vim
+.*.sw?
+*~
