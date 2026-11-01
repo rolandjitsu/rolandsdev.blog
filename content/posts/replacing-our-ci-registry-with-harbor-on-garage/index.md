@@ -1,8 +1,8 @@
 ---
 title: "Replacing our CI registry with Harbor on Garage"
-description: "Part 1 of a series: why deploy a new registry, the Harbor + Garage + Longhorn design, a replication-factor lesson, and how faster pulls broke the k8s apiserver."
+description: "Part 1 of the OCI registry series: why deploy a new registry, the Harbor + Garage + Longhorn design, a replication-factor lesson, and how faster pulls broke the Kubernetes apiserver."
 date: 2026-10-18T16:00:00+09:00
-lastmod: 2026-10-25T16:30:00+09:00
+lastmod: 2026-11-08T16:00:00+09:00
 draft: false
 authors: ["rolandjitsu"]
 
@@ -26,7 +26,7 @@ So the goals for the replacement, roughly in order:
 
 1. **Stability and scalability** - survive node failures, scale out by adding nodes.
 2. **Throughput** - CI fans out hundreds of concurrent pulls; the registry should not be the bottleneck.
-3. **Retention control** - CI churns through enormous numbers of short-lived images; we wanted real retention policies and GC instead of custom cleanup scripts - which sometimes removed blobs still shared by images we needed.
+3. **Retention control** - CI churns through enormous numbers of short-lived images; we wanted real retention policies and garbage collection (GC) instead of custom cleanup scripts - which sometimes removed blobs still shared by images we needed.
 4. **Observability and control** - dashboards, metrics, and insight into every component, storage included. The old registry had metrics, but they lived with the infra team; consolidating observability into one place we own - so we can monitor and alert on issues ourselves - is a goal of its own, and the registry should be part of it.
 
 ## The design
@@ -37,9 +37,9 @@ The request path, as first deployed:
 
 {{< mermaid >}}
 flowchart LR
-    c["container runtime (CI node)"] -->|pulls + pushes, TLS| t["Traefik (ingress)"]
+    c["container runtime (CI node)"] -- "pulls + pushes, TLS" --> t["Traefik (ingress)"]
     t --> h["Harbor core + registry"]
-    h -->|"S3 API"| g[("Garage, 3 nodes")]
+    h -- "S3 API" --> g[("Garage, 3 nodes")]
 {{< /mermaid >}}
 
 Everything - manifests, auth, and every blob byte - flowed through Traefik and Harbor's registry process. Harbor was deliberately set to *proxy* blobs rather than redirect clients to S3, since Garage was internal-only at that point. Keep that detail in mind for part 2.
@@ -62,13 +62,13 @@ I was quite pleased with that reasoning. What I did not fully register at the ti
 
 The first real bug showed up a day after deploying. Pushes of large images kept failing the same way: the layer upload would stop at around 2GB, then retry from zero, loop forever.
 
-The cause was a Traefik `buffering` middleware on the registry route - added, ironically, *to help* large pushes by enabling retries :roll_eyes: . What we missed is that for Traefik to be able to retry a request, it has to buffer the **whole request body**, spilling to a temp file, and that spill area had a ~2GB ceiling. Anything larger: connection reset, and the client retries the layer from byte zero.
+The cause was a Traefik `buffering` middleware on the registry route - added, ironically, *to help* large pushes by enabling retries 🙄. What we missed is that for Traefik to be able to retry a request, it has to buffer the **whole request body**, spilling to a temp file, and that spill area had a ~2GB ceiling. Anything larger: connection reset, and the client retries the layer from byte zero.
 
 The fix was to delete the middleware and let `/v2/` stream. The lesson is broader than Traefik: **a reverse proxy that buffers requests has a size limit somewhere, and container layers will find it.**
 
 ## Replication factor is not failure tolerance
 
-When I set up Garage I had to pick a replication factor, and I picked 2. Three nodes, every object on two of them, raw capacity divided by two instead of three - "tolerates 1 node failure", said the note next to the setting :expressionless: . More than once I caught myself thinking *isn't RF=2 good enough?*
+When I set up Garage I had to pick a replication factor, and I picked 2. Three nodes, every object on two of them, raw capacity divided by two instead of three - "tolerates 1 node failure", said the note next to the setting 😑. More than once I caught myself thinking *isn't RF=2 good enough?*
 
 Five days in, one of the three storage nodes went NotReady, and about **two thirds of all objects became unreadable**. Image pulls 500'd, Harbor's UI threw errors, and CI - whose executor images we had just moved to the new registry - started failing. The images were never deleted, nothing was lost; they were simply *unavailable*, because with `replication_factor = 2` Garage needs a quorum of 2 - both copies - for consistent operations. One node down means every object with a copy on that node is out of reach.
 
@@ -78,7 +78,7 @@ Changing it was its own small adventure: Garage persists the replication factor 
 
 ## The sizing math
 
-Storage sizing looked straightforward. From discussions with the team running the old registry: it churned through about **12TB a week**, roughly half of which their cleanup reclaimed by week's end - so ~6TB a week sticking around under their retention rules. Our retention would run on a different schedule: most CI-generated images are short-lived (only stable images stay forever), so instead of a weekly cleanup I planned retention + GC every other day, and figured ~2TB of usable space buys a couple of days of inflow - we'd oscillate in a safe band. We started with 3 nodes x 500GB and grew to 5 nodes x 800GB as they became available - about 1.3TB usable at RF=3.
+Storage sizing looked straightforward. From discussions with the team running the old registry: it churned through about **12TB a week**, roughly half of which their cleanup reclaimed by week's end - so ~6TB a week sticking around under their retention rules. Our retention would run on a different schedule: most CI-generated images are short-lived (only stable images stay forever), so instead of a weekly cleanup I planned retention + GC every other day, and figured ~2TB of usable space buys a couple of days of inflow - we'd oscillate in a safe band. We started with 3 nodes x 500GB and grew to 5 nodes x 800GB as they became available - about 1.3TB usable at RF=3. That's less than the plan called for - growing the disks later was assumed to be easy. Remember that assumption.
 
 The churn estimate was in the right ballpark - measured later, CI generated 0.5-1TB of image garbage per day while the new registry carried only part of the load. The capacity math still blew up in our faces, three different ways:
 
@@ -92,7 +92,7 @@ Each of those is a later chapter. The takeaway for part 1 is just this: **sizing
 
 Here's the side effect I didn't see coming at all.
 
-Our main CI runner was configured with `concurrent: 306`. On the old registry this number was mostly theoretical - jobs trickled in as slow pulls staggered them. On the new registry, pulls were fast, so when a big pipeline landed (one schedule alone fans out to **150+ pull-heavy jobs, concurrently**), the runner would try to start all of them *at once*. And a runner job is not one API request: the [Kubernetes executor](https://docs.gitlab.com/runner/executors/kubernetes/) creates a pod per job (a build container, a helper, one per service) and then drives each container through the API - attach/exec to run the scripts, log streaming, status watches. Multiply by 150. Faster storage turned a gentle ramp into a stampede :sweat_smile: .
+Our main CI runner was configured with `concurrent: 306`. On the old registry this number was mostly theoretical - jobs trickled in as slow pulls staggered them. On the new registry, pulls were fast, so when a big pipeline landed (one schedule alone fans out to **150+ pull-heavy jobs, concurrently**), the runner would try to start all of them *at once*. And a runner job is not one API request: the [Kubernetes executor](https://docs.gitlab.com/runner/executors/kubernetes/) creates a pod per job (a build container, a helper, one per service) and then drives each container through the API - attach/exec to run the scripts, log streaming, status watches. Multiply by 150. Faster storage turned a gentle ramp into a stampede 😅.
 
 The stampede hit in layers:
 

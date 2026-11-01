@@ -2,7 +2,7 @@
 title: "Hunting for registry throughput, layer by layer"
 description: "Part 2 of the OCI registry series: bypassing the proxy path, hardware crypto that wasn't working, the flannel overlay cost - and the single-stream number that barely improved anyway."
 date: 2026-10-25T16:30:00+09:00
-lastmod: 2026-10-25T16:30:00+09:00
+lastmod: 2026-11-08T16:00:00+09:00
 draft: false
 authors: ["rolandjitsu"]
 
@@ -14,7 +14,7 @@ toc:
   enable: true
 ---
 
-In [part 1]({{< ref "/posts/replacing-our-ci-registry-with-harbor-on-garage" >}}) we setup a Harbor registry backed by [Garage](https://garagehq.deuxfleurs.fr) and survived the first week. This part is about making it fast - or more precisely, about finding out, one layer at a time, what "fast" was even limited by.
+In [part 1]({{< ref "/posts/replacing-our-ci-registry-with-harbor-on-garage" >}}) we set up a Harbor registry backed by [Garage](https://garagehq.deuxfleurs.fr) and survived the first week. This part is about making it fast - or more precisely, about finding out, one layer at a time, what "fast" was even limited by.
 
 TLDR: we fixed four genuinely broken or suboptimal things - the proxy path, hardware crypto, the overlay network, NIC queues - and the single-stream pull number barely improved. The reason was in Garage's documentation all along, and it turned out not to matter much. But the fixes were still worth it, for reasons that only became clear once we could measure each layer by itself.
 
@@ -57,7 +57,7 @@ A few implementation notes worth mentioning:
 - **Don't rewrite the Host header.** S3 request signatures include it; a proxy rewrite breaks every presigned URL.
 - **HTTP/1.1 between HAProxy and clients.** S3 is HTTP/1.1, and HTTP/2 flow control can throttle large downloads through a proxy.
 
-The result, same benchmark: **aggregate 233 -> 1026 MB/s (4.4x), per-stream 15 -> ~128 MB/s (8.5x)** :exploding_head: .
+The result, same benchmark: **aggregate 233 -> 1026 MB/s (4.4x), per-stream 15 -> ~128 MB/s (8.5x)** 🤯.
 
 ## Fix #2: Garage's block size
 
@@ -102,7 +102,7 @@ Also found while chasing why one node's pulls were slow: a batch of worker nodes
 
 So: blobs bypass the proxies, crypto is hardware-speed, the overlay is at line rate, queues are more than enough. Single-stream pull throughput after all of it: **~180 MB/s under load, ~260 idle**. Essentially the post-`block_size` number from fix #2.
 
-The limit was Garage itself, and it is not a bug. A Garage coordinator serves one GET by fetching the object's blocks (mostly from its replica peers over RPC) with limited per-connection parallelism - round-trips between block operations leave every resource idle. During a sustained single-stream GET, nothing saturates: disk at 0.5-2.7 ms/op and mostly idle (hold on to that disk number - part 3 contradicts it under real load), coordinator CPU at ~55% of its limit, network with ~2x headroom. We checked it wasn't the client either - curl (C) and boto3 (python) land on the same numbers. There is no config option for per-GET read parallelism, and the v2 releases change APIs, not the read path. Garage's own docs describe its throughput as moderate compared to MinIO or Ceph - it's a documented design characteristic, and we'd simply never read it at all :laughing: .
+The limit was Garage itself, and it is not a bug. A Garage coordinator serves one GET by fetching the object's blocks (mostly from its replica peers over RPC) with limited per-connection parallelism - round-trips between block operations leave every resource idle. During a sustained single-stream GET, nothing saturates: disk at 0.5-2.7 ms/op and mostly idle (hold on to that disk number - part 3 contradicts it under real load), coordinator CPU at ~55% of its limit, network with ~2x headroom. We checked it wasn't the client either - curl (C) and boto3 (python) land on the same numbers. There is no config option for per-GET read parallelism, and the v2 releases change APIs, not the read path. Garage's own docs describe its throughput as moderate compared to MinIO or Ceph - it's a documented design characteristic, and we'd simply never read it at all 😆.
 
 So, why didn't this kill the project? Two reasons, both measured:
 
