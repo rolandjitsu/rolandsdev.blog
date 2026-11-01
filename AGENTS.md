@@ -9,6 +9,8 @@ before asserting anything.
 - Agree on the approach before implementing anything non-trivial.
 - One unit of change per commit. Never mix unrelated changes. Present the change
   for review before committing.
+- Never push or open a PR unless explicitly asked - local commits are the
+  hand-off point.
 - Verify against the code and the tools: read before you answer, run before you
   assert. A clean build is the bar, not a guess.
 
