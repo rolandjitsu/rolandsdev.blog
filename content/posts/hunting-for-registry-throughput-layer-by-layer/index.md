@@ -2,7 +2,7 @@
 title: "Hunting for registry throughput, layer by layer"
 description: "Part 2 of the OCI registry series: bypassing the proxy path, hardware crypto that wasn't working, the flannel overlay cost - and the single-stream number that barely improved anyway."
 date: 2026-10-25T16:30:00+09:00
-lastmod: 2026-10-25T16:30:00+09:00
+lastmod: 2026-11-01T21:00:00+09:00
 draft: false
 authors: ["rolandjitsu"]
 
@@ -14,7 +14,7 @@ toc:
   enable: true
 ---
 
-In [part 1]({{< ref "/posts/replacing-our-ci-registry-with-harbor-on-garage" >}}) we setup a Harbor registry backed by [Garage](https://garagehq.deuxfleurs.fr) and survived the first week. This part is about making it fast - or more precisely, about finding out, one layer at a time, what "fast" was even limited by.
+In [part 1]({{< ref "/posts/replacing-our-ci-registry-with-harbor-on-garage" >}}) we set up a Harbor registry backed by [Garage](https://garagehq.deuxfleurs.fr) and survived the first week. This part is about making it fast - or more precisely, about finding out, one layer at a time, what "fast" was even limited by.
 
 TLDR: we fixed four genuinely broken or suboptimal things - the proxy path, hardware crypto, the overlay network, NIC queues - and the single-stream pull number barely improved. The reason was in Garage's documentation all along, and it turned out not to matter much. But the fixes were still worth it, for reasons that only became clear once we could measure each layer by itself.
 

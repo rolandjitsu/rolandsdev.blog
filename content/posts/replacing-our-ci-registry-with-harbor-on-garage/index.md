@@ -1,8 +1,8 @@
 ---
 title: "Replacing our CI registry with Harbor on Garage"
-description: "Part 1 of a series: why deploy a new registry, the Harbor + Garage + Longhorn design, a replication-factor lesson, and how faster pulls broke the k8s apiserver."
+description: "Part 1 of the OCI registry series: why deploy a new registry, the Harbor + Garage + Longhorn design, a replication-factor lesson, and how faster pulls broke the Kubernetes apiserver."
 date: 2026-10-18T16:00:00+09:00
-lastmod: 2026-10-25T16:30:00+09:00
+lastmod: 2026-11-01T21:00:00+09:00
 draft: false
 authors: ["rolandjitsu"]
 
@@ -26,7 +26,7 @@ So the goals for the replacement, roughly in order:
 
 1. **Stability and scalability** - survive node failures, scale out by adding nodes.
 2. **Throughput** - CI fans out hundreds of concurrent pulls; the registry should not be the bottleneck.
-3. **Retention control** - CI churns through enormous numbers of short-lived images; we wanted real retention policies and GC instead of custom cleanup scripts - which sometimes removed blobs still shared by images we needed.
+3. **Retention control** - CI churns through enormous numbers of short-lived images; we wanted real retention policies and garbage collection (GC) instead of custom cleanup scripts - which sometimes removed blobs still shared by images we needed.
 4. **Observability and control** - dashboards, metrics, and insight into every component, storage included. The old registry had metrics, but they lived with the infra team; consolidating observability into one place we own - so we can monitor and alert on issues ourselves - is a goal of its own, and the registry should be part of it.
 
 ## The design
@@ -37,9 +37,9 @@ The request path, as first deployed:
 
 {{< mermaid >}}
 flowchart LR
-    c["container runtime (CI node)"] -->|pulls + pushes, TLS| t["Traefik (ingress)"]
+    c["container runtime (CI node)"] -- "pulls + pushes, TLS" --> t["Traefik (ingress)"]
     t --> h["Harbor core + registry"]
-    h -->|"S3 API"| g[("Garage, 3 nodes")]
+    h -- "S3 API" --> g[("Garage, 3 nodes")]
 {{< /mermaid >}}
 
 Everything - manifests, auth, and every blob byte - flowed through Traefik and Harbor's registry process. Harbor was deliberately set to *proxy* blobs rather than redirect clients to S3, since Garage was internal-only at that point. Keep that detail in mind for part 2.
@@ -78,7 +78,7 @@ Changing it was its own small adventure: Garage persists the replication factor 
 
 ## The sizing math
 
-Storage sizing looked straightforward. From discussions with the team running the old registry: it churned through about **12TB a week**, roughly half of which their cleanup reclaimed by week's end - so ~6TB a week sticking around under their retention rules. Our retention would run on a different schedule: most CI-generated images are short-lived (only stable images stay forever), so instead of a weekly cleanup I planned retention + GC every other day, and figured ~2TB of usable space buys a couple of days of inflow - we'd oscillate in a safe band. We started with 3 nodes x 500GB and grew to 5 nodes x 800GB as they became available - about 1.3TB usable at RF=3.
+Storage sizing looked straightforward. From discussions with the team running the old registry: it churned through about **12TB a week**, roughly half of which their cleanup reclaimed by week's end - so ~6TB a week sticking around under their retention rules. Our retention would run on a different schedule: most CI-generated images are short-lived (only stable images stay forever), so instead of a weekly cleanup I planned retention + GC every other day, and figured ~2TB of usable space buys a couple of days of inflow - we'd oscillate in a safe band. We started with 3 nodes x 500GB and grew to 5 nodes x 800GB as they became available - about 1.3TB usable at RF=3. That's less than the plan called for - growing the disks later was assumed to be easy. Remember that assumption.
 
 The churn estimate was in the right ballpark - measured later, CI generated 0.5-1TB of image garbage per day while the new registry carried only part of the load. The capacity math still blew up in our faces, three different ways:
 
