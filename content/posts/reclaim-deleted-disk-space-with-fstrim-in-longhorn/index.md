@@ -2,7 +2,7 @@
 title: "Reclaim deleted disk space with fstrim in Longhorn"
 description: "Harbor's GC did its job, Garage reclaimed the space, and the disks stayed full anyway. On thin-provisioned storage, deleted data is not free space until something runs fstrim."
 date: 2026-10-17T17:30:00+09:00
-lastmod: 2026-10-17T17:30:00+09:00
+lastmod: 2026-11-01T21:00:00+09:00
 draft: false
 authors: ["rolandjitsu"]
 
@@ -20,7 +20,7 @@ So, here's how I spent my Saturday morning, trying to prevent yet another incide
 
 ## The context
 
-CI pushes images around the clock, and the registry's storage had not kept up with the inflow - we'd already grown the Garage data volumes twice (800Gi -> 1200Gi -> 1900Gi) and they kept refilling. The fix was to expand the disks again with enough storage to accommodate the inflow and image retention policy, so we scheduled that for a Friday: one node at a time, registry live, Garage replicates everything 3 ways, what could go wrong.
+CI pushes images around the clock, and the registry's storage had not kept up with the inflow - we'd already grown the Garage data volumes twice (800GB -> 1200GB -> 1900GB) and they kept refilling. The fix was to expand the disks again with enough storage to accommodate the inflow and image retention policy, so we scheduled that for a Friday: one node at a time, registry live, Garage replicates everything 3 ways, what could go wrong.
 
 It required rebooting the VMs, and when we took the first node down, some image blobs turned out to be reachable only through that node - pulls started failing with `blob unknown`, and CI jobs with them. With 3-way replication that should have been a non-event; why it wasn't is a story for a follow-up post (short version: a recent 3 -> 5 node expansion had left some blocks under-replicated). We put the node back about an hour and a half later, having gained exactly zero bytes.
 
