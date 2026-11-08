@@ -31,7 +31,8 @@ hugo serve -D --disableFastRender
 
 - Concise and to the point. No fluff. Explain the non-obvious; do not narrate the
   obvious.
-- ASCII only in prose. No em-dash and no `--`; write `-`. Use `->` not the arrow
+- ASCII only in prose, with one exception: emoji - use real emoji characters, not
+  `:shortcodes:`. No em-dash and no `--`; write `-`. Use `->` not the arrow
   glyph, `!=` not the not-equal glyph.
 - Comments and config notes justify *why*, not *what*. Delete any note that just
   restates the setting.
