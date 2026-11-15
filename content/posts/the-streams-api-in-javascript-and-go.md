@@ -2,7 +2,7 @@
 title: "The Streams API in JavaScript and Go"
 description: "Checkout how to use the Streams API in JavaScript and how the API implementation would look like for it in Go."
 date: 2020-11-08T20:24:00+08:00
-lastmod: 2022-03-26T20:25:44+08:00
+lastmod: 2026-11-15T19:46:00+09:00
 draft: no
 authors: ["rolandjitsu"]
 
@@ -23,12 +23,12 @@ If you ever had to build a realtime web app and you've built yourself a [REST](h
 There's a bunch of ways to do this:
 
 1. You can use [long polling](https://javascript.info/long-polling); but this may add some networking overhead (creating and tearing down connections every time you need data is not very efficient)
-2. You can switch to [WebSockets](https://developer.mozilla.org/en-US/docs/Web/API/WebSockets_API); but this means you need yo reimplement your API
+2. You can switch to [WebSockets](https://developer.mozilla.org/en-US/docs/Web/API/WebSockets_API); but this means you need to reimplement your API
 3. You can use the [Streams API](https://developer.mozilla.org/en-US/docs/Web/API/Streams_API); you only need to update your API implementation to support it
 
-Do note that the streams API is an experimental technology and currently a [LS](https://streams.spec.whatwg.org/) (living standard), but [browser support](https://developer.mozilla.org/en-US/docs/Web/API/Streams_API#Browser_compatibility) is pretty good.
+The Streams API is currently a [LS](https://streams.spec.whatwg.org/) (living standard) and enjoys broad [browser support](https://developer.mozilla.org/en-US/docs/Web/API/Streams_API#Browser_compatibility) across all modern browsers and runtimes.
 
-For the purpose of illustrating how the server and client implementations will look like, we'll create a simple counter app that get's a new value every second from the backend.
+For the purpose of illustrating how the server and client implementations will look like, we'll create a simple counter app that gets a new value every second from the backend.
 
 ## Server
 
@@ -41,7 +41,6 @@ package main
 import (
   "encoding/json"
   "net/http"
-  "strconv"
   "time"
 
   "github.com/labstack/echo/v4"
@@ -71,15 +70,23 @@ func getCounter(c echo.Context) error {
   for {
     select {
     case <-ctx.Done():
-      return c.NoContent(http.StatusOK)
+      return nil
     default:
       counter := Counter{i}
       if err := enc.Encode(counter); err != nil {
+        if ctx.Err() != nil {
+          return nil
+        }
         return err
       }
       c.Response().Flush()
-      time.Sleep(time.Second)
       i++
+
+      select {
+      case <-ctx.Done():
+        return nil
+      case <-time.After(time.Second):
+      }
     }
   }
 }
@@ -112,10 +119,10 @@ You should get a bunch of JSON messages:
 
 ## Client
 
-We'll use [create-react-app](https://create-react-app.dev/) to setup a simple app:
+We'll use [Vite](https://vitejs.dev/) (or `create-react-app`) to setup a simple app:
 
 ```bash
-create-react-app streams-api
+npm create vite@latest streams-api -- --template react
 ```
 
 Now let's make a simple react hook that will just fetch and stream data from a URL (so we can reuse it with any endpoint):
@@ -147,6 +154,7 @@ export function useStream(params) {
 
   useEffect(() => {
     if (url.current !== params.url) {
+      url.current = params.url;
       if (streamRef.current) {
         streamRef.current.abort();
       }
@@ -154,7 +162,11 @@ export function useStream(params) {
       startStream(params.url, data => setData(data), streamRef.current.signal);
     }
 
-    return () => { };
+    return () => {
+      if (streamRef.current) {
+        streamRef.current.abort();
+      }
+    };
   }, [params.url]);
 
   return {data, stop};
@@ -176,6 +188,10 @@ export async function startStream(url, cb, signal) {
 
   while (true) {
     const {done, value} = await reader.read();
+    if (done) {
+      return;
+    }
+
     const res = new Response(value);
     try {
       const data = await res.json();
@@ -183,10 +199,6 @@ export async function startStream(url, cb, signal) {
         cb(data);
       }
     } catch (e) {
-      return;
-    }
-
-    if (done) {
       return;
     }
   }
@@ -223,7 +235,7 @@ function App(props) {
 And now run the app:
 
 ```bash
-yarn start
+npm run dev
 ```
 
 It won't look pretty, but you should be seeing a counter going up incrementally in the UI, similar to the curl call.
