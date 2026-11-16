@@ -2,7 +2,7 @@
 title: "Cross compile for Raspberry Pi with Docker"
 description: "Compile C/C++ code for ARM using Docker and buildx."
 date: 2020-10-02T19:51:00+08:00
-lastmod: 2026-11-16T15:00:00+09:00
+lastmod: 2026-11-16T15:15:00+09:00
 draft: false
 authors: ["rolandjitsu"]
 
@@ -170,6 +170,7 @@ RUN RPI_DIR=/raspberrypi && \
   cd $WPI_DIR && \
   git checkout $WIRINGPI_SHA && \
   cd $WPI_WIRING_PI_DIR && \
+  sed -i 's/\$(LIBS) \$(OBJ)/\$(OBJ) \$(LIBS)/' Makefile && \
   CC=$C_COMPILER_ARM_LINUX EXTRA_CFLAGS="-fcommon" make -j `nproc` LIBS="-L/usr/lib/$GNU_HOST -L$CROSS_INSTALL_PREFIX/lib -lm -lpthread -lrt -lcrypt" && \
   make install DESTDIR=$CROSS_INSTALL_PREFIX PREFIX="" && \
   cd / && \
@@ -397,6 +398,16 @@ if(NOT wiringPi_LIB)
   message(FATAL_ERROR "Could not find wiringPi")
 endif()
 
+find_library(crypt_LIB NAMES crypt)
+if(NOT crypt_LIB)
+  set(crypt_LIB crypt)
+endif()
+
+find_library(m_LIB NAMES m)
+if(NOT m_LIB)
+  set(m_LIB m)
+endif()
+
 # Target: hello (standard C++ Raspberry Pi model reader)
 add_executable(hello hello.cpp)
 target_compile_features(hello PRIVATE cxx_std_17)
@@ -412,6 +423,8 @@ target_include_directories(hello-pi PRIVATE
 )
 target_link_libraries(hello-pi PRIVATE
   pthread
+  ${m_LIB}
+  ${crypt_LIB}
   ${vcos_LIBS}
   ${vchiq_arm_LIBS}
   ${vchostif_LIBS}
