@@ -2,7 +2,7 @@
 title: "Cross compile for Raspberry Pi with Docker"
 description: "Compile C/C++ code for ARM using Docker and buildx."
 date: 2020-10-02T19:51:00+08:00
-lastmod: 2026-11-15T22:30:00+09:00
+lastmod: 2026-11-16T15:00:00+09:00
 draft: false
 authors: ["rolandjitsu"]
 
@@ -116,6 +116,7 @@ RUN --mount=type=cache,target=/var/cache/apt,sharing=locked \
     sed -i 's|security.debian.org|archive.debian.org|g' /etc/apt/sources.list && \
     echo 'Acquire::Check-Valid-Until "false";' > /etc/apt/apt.conf.d/99archive; \
   fi && \
+  dpkg --add-architecture armhf && \
   apt-get update && \
   apt-get --no-install-recommends install -y \
     autoconf \
@@ -129,9 +130,14 @@ RUN --mount=type=cache,target=/var/cache/apt,sharing=locked \
     git \
     gnupg \
     libc6-dev-armhf-cross \
+    libcrypt-dev:armhf \
     libssl-dev \
     pkg-config \
-    wget
+    wget && \
+  if [ -f /usr/lib/${GNU_HOST}/libcrypt.so ] && [ ! -f ${CROSS_INSTALL_PREFIX}/lib/libcrypt.so ]; then \
+    mkdir -p ${CROSS_INSTALL_PREFIX}/lib && \
+    ln -sf /usr/lib/${GNU_HOST}/libcrypt.so ${CROSS_INSTALL_PREFIX}/lib/libcrypt.so; \
+  fi
 
 COPY ./arm.toolchain.cmake /usr/local/share/cmake/arm.toolchain.cmake
 
@@ -164,7 +170,7 @@ RUN RPI_DIR=/raspberrypi && \
   cd $WPI_DIR && \
   git checkout $WIRINGPI_SHA && \
   cd $WPI_WIRING_PI_DIR && \
-  CC=$C_COMPILER_ARM_LINUX make -j `nproc` && \
+  CC=$C_COMPILER_ARM_LINUX EXTRA_CFLAGS="-fcommon" make -j `nproc` LIBS="-L/usr/lib/$GNU_HOST -L$CROSS_INSTALL_PREFIX/lib -lm -lpthread -lrt -lcrypt" && \
   make install DESTDIR=$CROSS_INSTALL_PREFIX PREFIX="" && \
   cd / && \
   rm -rf $WPI_DIR
@@ -549,11 +555,12 @@ You can also verify binary headers and dynamic linking locally on Linux without 
 file ./bin/hello
 file ./bin/hello-pi
 
-# Run hello
+# Run hello (verifies 32-bit ARM ELF execution and glibc matching)
 qemu-arm -L /usr/arm-linux-gnueabihf/ ./bin/hello
-
-# Run hello-pi (verifies dynamic symbol resolution)
-qemu-arm -L /usr/arm-linux-gnueabihf/ ./bin/hello-pi
 ```
+
+{{< admonition type=note title="Running hello-pi with QEMU" >}}
+`hello` depends only on standard C++ and libc, so it executes cleanly under QEMU. `hello-pi` dynamically links against Broadcom VideoCore IV (`libvcos.so`, `libvchiq_arm.so`) and `libwiringPi.so`, which reside on physical Raspberry Pi OS (or require those libraries in `LD_LIBRARY_PATH`).
+{{< /admonition >}}
 
 All the source code and CI workflows are available at [rolandjitsu/raspi-cross](https://github.com/rolandjitsu/raspi-cross).
