@@ -215,4 +215,7 @@ When distributing messages to multiple channels, consider your application's tol
 2. **Non-blocking drop (`select { case ch <- msg: default: }`)**: Protects system throughput and responsive consumers, but slow consumers lose messages when their buffers fill.
 3. **Dynamic ring buffer**: Uses an intermediate queue per subscriber, disconnecting or logging lagging clients before exceeding memory boundaries.
 
-For a battle-tested library implementation, checkout [transcelestial/chanpiper](https://github.com/transcelestial/chanpiper).
+If you need production-grade messaging abstractions rather than implementing your own broadcaster:
+- [cskr/pubsub](https://github.com/cskr/pubsub): Thread-safe channel-based topic subscriptions and broadcasting with capacity controls.
+- [ThreeDotsLabs/watermill](https://github.com/ThreeDotsLabs/watermill): Full-featured event-driven architecture framework, including an in-memory Pub/Sub implementation.
+- [smallnest/ringbuffer](https://github.com/smallnest/ringbuffer) or [Workiva/go-datastructures](https://github.com/Workiva/go-datastructures): Lock-free ring buffers and queues for high-throughput buffering.
