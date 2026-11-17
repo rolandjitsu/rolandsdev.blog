@@ -95,6 +95,7 @@ The cloned source files will be written directly to `./priv-code` on your host.
 
 ## Notes & Best Practices
 
+- **Docker Bake (`docker buildx bake`)**: When building with Bake, specify the `ssh` target attribute and pass `--allow=ssh` on the CLI to grant Buildx the privilege to forward the host SSH socket.
 - **Secrets vs SSH**: For Git tokens or fine-grained GitHub Personal Access Tokens (PAT), use [`--mount=type=secret`](https://docs.docker.com/build/building/secrets/) instead of SSH keys.
 - **GitLab / Bitbucket**: This pattern works across all Git providers by swapping `github.com` in `known_hosts` and the `insteadOf` configuration.
 - The sample code and GitHub Actions workflow are available at [rolandjitsu/docker-ssh](https://github.com/rolandjitsu/docker-ssh).
