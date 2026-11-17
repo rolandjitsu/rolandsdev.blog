@@ -2,7 +2,7 @@
 title: "The factory method pattern in Go"
 description: "Implement the factory method design pattern in Golang."
 date: 2020-10-25T17:50:00+08:00
-lastmod: 2022-03-20T20:31:25+08:00
+lastmod: 2026-11-17T17:00:00+09:00
 draft: false
 authors: ["rolandjitsu"]
 
@@ -70,7 +70,7 @@ func TestUseMyObj(t *testing.T) {
 }
 
 func NewMockObj(data []byte) MyObj {
-  return &mockMyObj{data}
+  return &mockObj{data}
 }
 
 type mockObj struct {
@@ -92,7 +92,7 @@ obj1 := makeObj(1)
 obj2 := makeObj(2)
 
 func MakeObjFactory(a string) func(b int) MyObj {
-  return func() MyObj {
+  return func(b int) MyObj {
     return MyObj{
       PropA: a,
       PropB: b,

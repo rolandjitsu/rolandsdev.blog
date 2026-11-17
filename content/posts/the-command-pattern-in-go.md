@@ -2,7 +2,7 @@
 title: "The command pattern in Go"
 description: "Implement the command design pattern in Golang."
 date: 2020-10-26T12:03:00+08:00
-lastmod: 2022-03-20T20:51:18+08:00
+lastmod: 2026-11-17T17:00:00+09:00
 draft: false
 authors: ["rolandjitsu"]
 
@@ -43,13 +43,20 @@ Or the [net/http](https://golang.org/pkg/net/http/) package:
 package main
 
 import (
-  "http/net"
+  "net/http"
 )
 
 func main() {
   c := &http.Client{}
-  req, err := http.NewRequest("GET", "http://example.com", nil)
+  req, err := http.NewRequest("GET", "https://example.com", nil)
+  if err != nil {
+    return
+  }
   res, err := c.Do(req)
+  if err != nil {
+    return
+  }
+  defer res.Body.Close()
 }
 ```
 
@@ -60,7 +67,7 @@ But take the following example:
 ```go
 p := &Pinger{}
 ping := &Ping{}
-pingCmd = &PingCmd{ping}
+pingCmd := &PingCmd{ping}
 
 p.Execute(pingCmd)
 
