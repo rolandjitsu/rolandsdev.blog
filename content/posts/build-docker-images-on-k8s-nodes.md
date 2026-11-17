@@ -2,65 +2,89 @@
 title: "Build Docker images on k8s nodes"
 description: "Speed up your Docker builds using buildx and Kubernetes."
 date: 2020-10-10T17:19:00+08:00
-lastmod: 2022-03-20T19:35:15+08:00
+lastmod: 2026-11-17T17:00:00+09:00
 draft: false
 authors: ["rolandjitsu"]
 
-tags: ["k8s", "qemu"]
+tags: ["k8s", "docker", "buildx"]
 categories: ["DevOps"]
 series: []
 
 toc:
-  enable: false
+  enable: true
 ---
 
-In one of my previous posts, [cross-compiling for Raspberry Pi with Docker]({{< ref "/posts/cross-compile-for-raspberry-pi-with-docker" >}}), I wrote about and illustrated how the relatively new [buildx](https://github.com/docker/buildx) command made it much easier to build and dump binaries on the host system.
+[Docker Buildx](https://docs.docker.com/build/buildx/) allows you to route image build execution away from your local workstation using pluggable [builder drivers](https://docs.docker.com/build/builders/drivers/):
 
-Another useful feature of buildx is the ability to use different drivers when building images. As of today (10.10.2020), it supports [3 different drivers](https://github.com/docker/buildx/tree/d1a46faf8475564fbb27c9228b79a806e59b8f65#--driver-driver):
+1. **`docker`**: Uses the standard daemon engine (default). Best for single-arch, local image generation.
+2. **`docker-container`**: Spawns an isolated BuildKit container locally. Supports multi-platform builds and cache export.
+3. **`kubernetes`**: Deploys BuildKit pods dynamically into a Kubernetes cluster, offloading compilation, packaging, and disk I/O to remote node pools.
+4. **`remote`**: Directly connects to a standalone BuildKit daemon over mTLS or TCP, useful for dedicated shared build infrastructure.
 
-1. `docker` - uses the docker daemon built in builder (default). You'd use this if you want to build and use images locally.
-2. `docker-container` - uses a [BuildKit](https://github.com/moby/buildkit) container spawned by docker. Useful when you want to build multi-platform images.
-3. `kubernetes` - uses k8s pods with defined buildkit container images. Similar to the `docker-container` driver, but instead of building on the host, it builds on a k8s node
+The `kubernetes` driver is particularly effective when local CPU and RAM are constrained, or when you want your build tasks to scale horizontally across high-performance cloud compute.
 
-I find the `kubernetes` driver quite useful when you're low on resources on your host or when you just want your builds to be fast; there's probably other good reasons to use it (scalability?), but I'm not going to try to convince you. You should just try it and see if it fits your needs or not.
+## Prerequisites
 
-And the setup doesn't take more than a minute, definitely less than the time it takes to read this post.
-
-I'm going to assume you've already created a K8s cluster on [GCP](https://cloud.google.com/kubernetes-engine/docs/quickstart#create_cluster) or [AWS](https://docs.aws.amazon.com/eks/latest/userguide/create-cluster.html) (or some other cloud provider), but to make sure, check that the current context is what you expect:
+Verify your `kubectl` context points to the target cluster:
 
 ```bash
 kubectl config current-context
 ```
 
-Should, on a GKE cluster, show something similar to:
+## Creating the Kubernetes Builder
 
-```text
-gke_<project name>_<region>_<cluster name>
-```
-
-Now, create a builder:
+Create a new Buildx builder using the `kubernetes` driver:
 
 ```bash
-docker buildx create --name <builder name> --driver kubernetes --use
-```
-
-You can provide other [options](https://github.com/docker/buildx/tree/d1a46faf8475564fbb27c9228b79a806e59b8f65#--driver-opt-options) too; let's say you want a couple of replicas:
-
-```bash
-docker buildx create --name <builder name> \
+docker buildx create \
+  --name k8s-builder \
   --driver kubernetes \
-  --driver-opt replicas=2\
+  --driver-opt namespace=buildkit,replicas=2 \
+  --driver-opt requests.cpu=2,requests.memory=4Gi \
+  --driver-opt limits.cpu=4,limits.memory=8Gi \
   --use
 ```
 
 {{< admonition type=info >}}
-The `--use` flag will switch to that builder automatically.
+The `--use` flag automatically switches your current Buildx context to this new builder.
 {{< /admonition >}}
 
-And bootstrap it:
+Bootstrap the builder instance to pull the BuildKit image and launch the Kubernetes pods:
 
 ```bash
 docker buildx inspect --bootstrap
 ```
 
-That's it, you're ready to build images on your k8s nodes.
+Check that the builder pods are running in your cluster:
+
+```bash
+kubectl get pods -n buildkit -l app=buildkit
+```
+
+## Running Builds with Remote Caching
+
+Once initialized, run `docker buildx build` as usual. Because the builder lives inside the cluster, push outputs to a container registry or export them locally:
+
+```bash
+# Push directly to registry with inline cache
+docker buildx build \
+  --tag my-registry.example.com/app:v1 \
+  --push \
+  --cache-to type=registry,ref=my-registry.example.com/app:buildcache,mode=max \
+  --cache-from type=registry,ref=my-registry.example.com/app:buildcache \
+  .
+```
+
+Or export the resulting filesystem directly back to your local machine:
+
+```bash
+docker buildx build -o type=local,dest=./dist .
+```
+
+## Cleanup
+
+To remove the builder and its Kubernetes resources:
+
+```bash
+docker buildx rm k8s-builder
+```
