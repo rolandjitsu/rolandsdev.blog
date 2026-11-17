@@ -96,6 +96,58 @@ The cloned source files will be written directly to `./priv-code` on your host.
 ## Notes & Best Practices
 
 - **Docker Bake (`docker buildx bake`)**: When building with Bake, specify `ssh = ["default"]` on the target and pass `--allow=ssh` on the CLI to grant Buildx the privilege to forward the host SSH socket. If passing explicit socket paths outside your workspace or hitting filesystem entitlement restrictions in Buildx v0.20+, set `BUILDX_BAKE_ENTITLEMENTS_FS=0` or pass `--allow=fs.read=<path>`.
-- **Secrets vs SSH**: For Git tokens or fine-grained GitHub Personal Access Tokens (PAT), use [`--mount=type=secret`](https://docs.docker.com/build/building/secrets/) instead of SSH keys.
 - **GitLab / Bitbucket**: This pattern works across all Git providers by swapping `github.com` in `known_hosts` and the `insteadOf` configuration.
 - The sample code and GitHub Actions workflow are available at [rolandjitsu/docker-ssh](https://github.com/rolandjitsu/docker-ssh).
+
+## Security Posture & Authentication Choices
+
+### Isolating SSH Access in Builds
+
+1. **Least privilege**: Forward the SSH agent socket only to targets that perform clones (such as `priv-repo`). Downstream stages (compiling, packaging) should not declare `ssh` attributes or request socket access.
+2. **Ephemeral access**: `--mount=type=ssh` exposes the socket only during that single `RUN` instruction. The socket is not accessible during later build steps and is never persisted in image layers or metadata.
+3. **Exclude Git metadata**: When copying cloned repositories into final images or host directories, exclude `.git/` (`rsync --exclude '.git'`). This avoids leaking commit histories, author metadata, or remote URLs into production artifacts.
+4. **Enforce host verification**: Mount a trusted `known_hosts` file via `--mount=type=secret` to protect against man-in-the-middle attacks.
+
+### Deploy Keys vs GitHub Apps
+
+When choosing how machine credentials authenticate to private repositories in CI/CD pipelines, there are two primary approaches:
+
+| Feature | Deploy Keys (SSH) | GitHub Apps (Token) |
+| --- | --- | --- |
+| **Credential Type** | Static SSH key pair | Short-lived installation token (~1 hr) |
+| **Scope** | Single repository per key | Multi-repository across an organization |
+| **Expiration** | Manual rotation | Automatic |
+| **BuildKit Integration** | `--mount=type=ssh` | `--mount=type=secret` |
+| **Audit Log Trail** | Key fingerprint | App name + actor |
+
+#### When using Deploy Keys
+
+- Always use modern `ed25519` keys (`ssh-keygen -t ed25519`).
+- GitHub deprecated and disabled legacy SHA-1 RSA keys in March 2022. Older keys without SHA-2 signatures fail authentication with `Permission denied (publickey)`.
+- Deploy keys are tied to a single repository. If your build needs to clone multiple private dependencies or submodules across an organization, managing unique deploy keys per repository becomes difficult to maintain.
+
+#### Recommended: GitHub Apps
+
+For organization-scale CI/CD, GitHub Apps are the recommended solution:
+
+1. **Short-lived credentials**: Using the official [actions/create-github-app-token](https://github.com/actions/create-github-app-token) action generates an installation access token valid for 60 minutes. There are no static credentials that can be forgotten or leaked indefinitely.
+2. **Multi-repo access**: A single GitHub App installation can be granted `contents: read` across multiple private dependency repositories.
+3. **BuildKit integration**: Pass the generated token via `--mount=type=secret` and rewrite Git URLs:
+
+```dockerfile
+# syntax=docker/dockerfile:1
+FROM alpine:3.20
+
+RUN apk add --no-cache ca-certificates git
+
+RUN --mount=type=secret,id=github_token \
+    TOKEN=$(cat /run/secrets/github_token) && \
+    git config --global url."https://x-access-token:${TOKEN}@github.com/".insteadOf "https://github.com/" && \
+    git clone https://github.com/my-org/my-private-repo.git /code
+```
+
+Invoke buildx passing the token from your workflow environment:
+
+```bash
+docker buildx build --secret id=github_token,env=GITHUB_TOKEN .
+```
