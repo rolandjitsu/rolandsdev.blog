@@ -2,53 +2,53 @@
 title: "Cross-compile Go with C dependencies for ARM"
 description: "Cross-compile Go packages that call C code with cgo for ARM."
 date: 2020-10-11T17:32:00+08:00
-lastmod: 2022-03-20T19:51:22+08:00
+lastmod: 2026-11-17T17:00:00+09:00
 draft: false
 authors: ["rolandjitsu"]
 
-tags: ["go", "docker"]
-categories: ["DevOps"]
+tags: ["go", "docker", "cross-compile", "arm"]
+categories: ["DevOps", "Go"]
 series: []
 
 toc:
   enable: true
 ---
 
-Go has some pretty good support/tools for cross-compiling binaries for multiple platforms/architectures. Just check the `$GOOS`/`$GOARCH` env vars listed in the [official documentation](https://golang.org/doc/install/source#environment).
+Go includes first-class support for cross-compiling pure Go code to multiple operating systems and architectures simply by specifying the `$GOOS` and `$GOARCH` environment variables (see the official [environment list](https://go.dev/doc/install/source#environment)).
 
-But sometimes, you may need to use some lib/code written in C that hasn't been ported to Go. For this reason, there's [cgo](https://golang.org/cmd/cgo/), which you can use to call C code from your Go code. And while it can be straightforward to use when you run the binaries on the same platform you used to build them, it can be a bit of a mess when cross-compiling for platforms/architectures that are different.
+However, when your project uses C libraries or legacy system APIs via [cgo](https://go.dev/cmd/cgo/), compilation requires a matching C cross-compiler and target C runtime headers. Configuring this directly on your host machine can quickly lead to conflicting toolchains and package versions.
 
-Though, I hope that if you continue reading, it will become just a little easier.
+Using Docker multi-stage builds and Buildx provides a reproducible, hermetic cross-compilation pipeline for both 64-bit ARM (`arm64` / `aarch64`) and 32-bit ARM (`armhf`).
 
 ## Prerequisites
 
-Throughout this guide, we'll use Docker to build our binaries, so make sure you've installed the following:
+1. [Docker](https://docs.docker.com/engine) >= `20.10.0`
+2. [buildx](https://github.com/docker/buildx) >= `v0.8.0`
 
-1. [Docker](https://docs.docker.com/engine) >= `19.03.13`
-2. [buildx](https://github.com/docker/buildx#installing) >= `v0.4.1`
-
-You'll also need to [enable the experimental features for Docker]({{< ref "/posts/how-to-enable-experimental-docker-in-github-workflows" >}}).
-
-## Setup
-
-Let's create a go project:
+Bootstrap a container builder if you haven't already:
 
 ```bash
+docker buildx create --name arm-builder --driver docker-container --use
+docker buildx inspect --bootstrap
+```
+
+## Setup the Go Project
+
+Initialize a module:
+
+```bash
+mkdir go-cross && cd go-cross
 go mod init github.com/my-username/go-cross
 ```
 
-{{< admonition type=note >}}
-Make sure you create a project dir for this and run the above command from the root of that dir.
-{{< /admonition >}}
-
-Now let's create a simple `hello` package:
+Create a C-backed Go package:
 
 ```go
 // pkg/hello/hello.go
 package hello
 
 // #include <stdlib.h>
-// #include <hello.h>
+// #include "hello.h"
 import "C"
 import (
 	"fmt"
@@ -64,7 +64,7 @@ func Greet(name string) {
 }
 ```
 
-And the C code that the package is referencing:
+The accompanying C header and source:
 
 ```c
 // pkg/hello/hello.h
@@ -83,15 +83,15 @@ char *greet(const char *name, size_t size);
 // pkg/hello/hello.c
 #include "hello.h"
 
-char *greet(const char *name, size_t size)
-{
-  char *msg = malloc(size + 8);
+char *greet(const char *name, size_t size) {
+  char *msg = malloc(size + 16);
+  if (!msg) return NULL;
   sprintf(msg, "Hello, %s!", name);
   return msg;
 }
 ```
 
-Now we need a simple cmd that uses the package:
+And the application entrypoint:
 
 ```go
 // cmd/hello/main.go
@@ -115,53 +115,64 @@ func main() {
 }
 ```
 
-And finally, we need a simple dockerfile to build our `hello` binary:
+## Multi-Architecture Dockerfile
+
+The Dockerfile installs target cross-toolchains from Debian Bookworm and uses BuildKit cache mounts for fast incremental rebuilds:
 
 ```dockerfile
-# syntax = docker/dockerfile:1.1-experimental
+# syntax=docker/dockerfile:1
 # Dockerfile.hello
-FROM golang:1.15-buster AS base
+ARG GO_VERSION=1.23
+FROM golang:${GO_VERSION}-bookworm AS toolchain
 
-ENV GNU_HOST=arm-linux-gnueabi
-ENV CC=$GNU_HOST-gcc
+ARG TARGETARCH=arm64
 
 RUN apt-get update && \
-  apt-get --no-install-recommends install -y gcc-$GNU_HOST \
-    libc6-dev-armel-cross && \
-  rm -rf /var/lib/apt/lists/*
+    if [ "$TARGETARCH" = "arm64" ]; then \
+        apt-get install --no-install-recommends -y \
+            gcc-aarch64-linux-gnu libc6-dev-arm64-cross; \
+    elif [ "$TARGETARCH" = "arm" ]; then \
+        apt-get install --no-install-recommends -y \
+            gcc-arm-linux-gnueabihf libc6-dev-armhf-cross; \
+    fi && \
+    rm -rf /var/lib/apt/lists/*
 
 WORKDIR /code
 
-COPY ./go.mod .
-
-ENV GO111MODULE=on
-
+COPY go.mod ./
 RUN --mount=type=cache,target=/go/pkg/mod \
-  go mod download
+    go mod download
 
-FROM base AS builder
+FROM toolchain AS builder
 
-WORKDIR /code
+ARG TARGETARCH=arm64
+ARG TARGETOS=linux
 
 ENV CGO_ENABLED=1
-ENV GOARCH=arm
-ENV GOOS=linux
-ENV BIN_DIR /tmp/bin
+ENV GOOS=${TARGETOS}
+ENV GOARCH=${TARGETARCH}
+
+# Set cross-compiler based on architecture
+ENV CC_arm64=aarch64-linux-gnu-gcc
+ENV CC_arm=arm-linux-gnueabihf-gcc
 
 COPY . .
 
-RUN --mount=type=cache,target=/root/.cache/ \
-  --mount=type=cache,target=/go/pkg/mod,ro \
-  mkdir -p $BIN_DIR && \
-  go build -mod readonly \
-  -o $BIN_DIR/ \
-  ./cmd/...
+RUN --mount=type=cache,target=/root/.cache/go-build \
+    --mount=type=cache,target=/go/pkg/mod \
+    if [ "$TARGETARCH" = "arm64" ]; then \
+        export CC=$CC_arm64; \
+    else \
+        export CC=$CC_arm GOARM=7; \
+    fi && \
+    mkdir -p /tmp/bin && \
+    go build -trimpath -ldflags="-s -w" -o /tmp/bin/hello ./cmd/hello
 
-FROM scratch
-COPY --from=builder /tmp/bin /
+FROM scratch AS output
+COPY --from=builder /tmp/bin/hello /
 ```
 
-The project dir should end up similar to the following one:
+Directory layout:
 
 ```text
 .
@@ -174,28 +185,45 @@ The project dir should end up similar to the following one:
     └── hello
         ├── hello.c
         ├── hello.go
-        ├── hello.h
+        └── hello.h
 ```
 
-## Build
+## Build and Export
 
-Let's build the `hello` binary:
+Build for 64-bit ARM (`linux/arm64`):
 
 ```bash
-docker buildx build -f Dockerfile.hello -o type=local,dest=./bin .
+docker buildx build \
+  -f Dockerfile.hello \
+  --build-arg TARGETARCH=arm64 \
+  --output type=local,dest=./bin/arm64 \
+  .
 ```
 
-If everything went well, you should find the binary in `./bin/`. Now just copy it to your target host and run it.
-
-You could also build the binary on your host:
+Or build for 32-bit ARMv7 (`linux/arm`):
 
 ```bash
-go build -race -o ./bin/hello cmd/hello/main.go
+docker buildx build \
+  -f Dockerfile.hello \
+  --build-arg TARGETARCH=arm \
+  --output type=local,dest=./bin/arm \
+  .
 ```
 
-And run it to verify it works:
-![hello output](./hello-output.png "hello-output.png")
+Inspect the compiled binary:
 
-You can find the above project at [rolandjitsu/go-cross](https://github.com/rolandjitsu/go-cross). You'll also find how to use and statically link 3rd party libraries and how to setup a simple Github workflow to test the binaries.
+```bash
+file ./bin/arm64/hello
+# ELF 64-bit LSB executable, ARM aarch64, version 1 (SYSV), dynamically linked ...
+```
 
-That's all folks.
+## Testing Locally with QEMU
+
+If you are running on a Linux host (or inside a container with `qemu-user`), you can execute the target binary directly through user-mode emulation without copying to physical hardware:
+
+```bash
+qemu-aarch64 -L /usr/aarch64-linux-gnu ./bin/arm64/hello Roland
+# Hello, Roland!
+```
+
+Source code and additional configurations are available at [rolandjitsu/go-cross](https://github.com/rolandjitsu/go-cross).
