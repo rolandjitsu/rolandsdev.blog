@@ -2,7 +2,7 @@
 title: "The prototype pattern in Go"
 description: "Implement the prototype design pattern in Golang."
 date: 2020-10-25T18:21:00+08:00
-lastmod: 2022-03-20T20:38:34+08:00
+lastmod: 2026-11-17T17:00:00+09:00
 draft: false
 authors: ["rolandjitsu"]
 
@@ -32,7 +32,7 @@ To get an idea of what it looks like in practice, consider the following example
 
 ```go
 obj := NewObj(1)
-copy := obj.Clone()
+objCopy := obj.Clone()
 
 func NewObj(prop int) MyObj {
     return &myObj{PubProp: prop}
@@ -43,13 +43,13 @@ type MyObj interface {
 }
 
 type myObj struct {
-    PubProp int
+    PubProp  int
     privProp int
 }
 
-func (o *myObj) Clone() *MyObj {
+func (o *myObj) Clone() MyObj {
     return &myObj{
-        PubProp: o.Prop,
+        PubProp:  o.PubProp,
         privProp: o.privProp,
     }
 }

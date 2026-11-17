@@ -2,7 +2,7 @@
 title: "The proxy pattern in Go"
 description: "Implement the proxy design pattern in Golang."
 date: 2020-11-07T13:13:00+08:00
-lastmod: 2022-03-20T21:05:02+08:00
+lastmod: 2026-11-17T17:00:00+09:00
 draft: false
 authors: ["rolandjitsu"]
 
@@ -34,7 +34,7 @@ package fileproxy
 
 import (
   "io"
-  "io/ioutil"
+  "os"
   "sync"
 )
 
@@ -54,31 +54,32 @@ type FileProxy interface {
 }
 
 type fileProxy struct {
-  Name string
+  Name   string
+  offset int
 }
 
 func (fp *fileProxy) Read(b []byte) (n int, err error) {
   mux.RLock()
-  if data, ok := cache[fp.Name]; ok {
-    copy(b, data)
-    mux.RUnlock()
-    n = len(b)
-    return
-  }
- 
+  data, ok := cache[fp.Name]
   mux.RUnlock()
 
-  var data []byte
-  data, err = ioutil.ReadFile(fp.Name)
-  if err == nil {
-    copy(b, data)
+  if !ok {
+    data, err = os.ReadFile(fp.Name)
+    if err != nil {
+      return 0, err
+    }
     mux.Lock()
-    n = len(b)
     cache[fp.Name] = data
     mux.Unlock()
   }
 
-  return
+  if fp.offset >= len(data) {
+    return 0, io.EOF
+  }
+
+  n = copy(b, data[fp.offset:])
+  fp.offset += n
+  return n, nil
 }
 
 var _ FileProxy = &fileProxy{}
@@ -89,7 +90,7 @@ And if you'd run a simple benchmark:
 ```go
 func BenchmarkReadFile(b *testing.B) {
   for n := 0; n < b.N; n++ {
-    _, err := ioutil.ReadFile("somefile.txt")
+    _, err := os.ReadFile("somefile.txt")
     if err != nil {
       b.Fatal(err)
     }
@@ -98,12 +99,17 @@ func BenchmarkReadFile(b *testing.B) {
 
 func BenchmarkFileProxy(b *testing.B) {
   data := make([]byte, 24)
-  fp := NewFileProxy("somefile.txt")
 
   for n := 0; n < b.N; n++ {
-    _, err := fp.Read(data)
-    if err != nil {
-      b.Fatal(err)
+    fp := NewFileProxy("somefile.txt")
+    for {
+      _, err := fp.Read(data)
+      if err == io.EOF {
+        break
+      }
+      if err != nil {
+        b.Fatal(err)
+      }
     }
   }
 }
