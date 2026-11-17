@@ -2,7 +2,7 @@
 title: "How to enable experimental features for Docker in Github's workflow for Ubuntu 18.04?"
 description: "Add buildx and experimental features for Docker in your Github workflows."
 date: 2020-10-04T16:36:00+08:00
-lastmod: 2022-03-20T19:24:01+08:00
+lastmod: 2026-11-17T17:00:00+09:00
 draft: false
 authors: ["rolandjitsu"]
 
@@ -11,14 +11,31 @@ categories: ["DevOps"]
 series: ["How to do stuff"]
 
 toc:
-  enable: false
+  enable: true
 ---
 
-If you're using [Github's workflows](https://docs.github.com/en/free-pro-team@latest/actions/learn-github-actions/introduction-to-github-actions) for CI/CD and you need to use some of Docker's [experimental features](https://github.com/docker/cli/blob/master/experimental/README.md#current-experimental-features), or you want to use [buildx](https://github.com/docker/buildx) or maybe you just want to use some of the new dockerfile [experimental syntaxes](https://github.com/moby/buildkit/blob/master/frontend/dockerfile/docs/experimental.md) then you need to enable the experimental features for the CLI and probably the daemon too.
+{{< admonition type=warning title="Deprecated Setup" >}}
+This post is preserved for historical context. In modern Docker (v23+) and GitHub Actions:
+- **Buildx and BuildKit are enabled by default**: You no longer need to enable experimental flags for the Docker CLI or daemon to use Buildx, multi-stage builds, or `--mount=type=ssh/secret`.
+- **`ubuntu-18.04` is removed**: GitHub-hosted runners retired Ubuntu 18.04 in December 2022. Workflows should use `ubuntu-latest` (or `ubuntu-24.04`).
+- **Official GitHub Actions**: The canonical modern workflow uses official actions like [docker/setup-buildx-action](https://github.com/docker/setup-buildx-action) and [docker/setup-qemu-action](https://github.com/docker/setup-qemu-action):
 
-When running natively on Linux or macOS, it's pretty easy.
+```yaml
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: docker/setup-buildx-action@v3
+      - run: docker buildx build .
+```
+{{< /admonition >}}
 
-To enable the experimental features for the CLI, you just need to add the following to your `~/.docker/config.json` config:
+If you're using [Github's workflows](https://docs.github.com/en/actions) for CI/CD and you need to use some of Docker's [experimental features](https://docs.docker.com/), or you want to use [buildx](https://github.com/docker/buildx) or Dockerfile frontend syntaxes on legacy runners, you needed to enable the experimental features for the CLI and daemon.
+
+When running natively on Linux or macOS:
+
+To enable the experimental features for the CLI, you add the following to `~/.docker/config.json`:
 
 ```json
 {
@@ -26,7 +43,7 @@ To enable the experimental features for the CLI, you just need to add the follow
 }
 ```
 
-And to enable the experimental features for the daemon, you need to add the following to your `/etc/docker/daemon.json` config:
+And for the daemon, in `/etc/docker/daemon.json`:
 
 ```json
 {
@@ -34,7 +51,7 @@ And to enable the experimental features for the daemon, you need to add the foll
 }
 ```
 
-The Github workflow setup is no different:
+On legacy GitHub workflows, the step was configured via inline shell commands:
 
 ```yaml
 name: Stuff builder
@@ -58,4 +75,4 @@ jobs:
           docker buildx version
 ```
 
-That's pretty much it. See it in action at [rolandjitsu/docker-ssh](https://github.com/rolandjitsu/docker-ssh/blob/master/.github/workflows/test.yml).
+See the example repository at [rolandjitsu/docker-ssh](https://github.com/rolandjitsu/docker-ssh).
