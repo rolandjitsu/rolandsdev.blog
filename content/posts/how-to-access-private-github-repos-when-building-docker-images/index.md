@@ -3,7 +3,7 @@ title: "How to access private Github repos when building Docker images?"
 description: "Access private repositories from your Dockerfile without leaving behind any ssh keys or credentials."
 date: 2020-10-03T20:06:00+08:00
 lastmod: 2022-03-20T17:04:23+08:00
-draft: no
+draft: false
 authors: ["rolandjitsu"]
 
 tags: ["docker", "github", "ci"]
@@ -11,7 +11,7 @@ categories: ["DevOps"]
 series: ["How to do stuff"]
 
 toc:
-  enable: no
+  enable: false
 ---
 
 If you landed on this page, it means you probably have the same issue I've stumbled upon as well: I need to access some private Github repos while building a docker image but I don't want any ssh keys or credentials to end up in the final image.

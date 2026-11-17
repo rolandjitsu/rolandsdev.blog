@@ -3,7 +3,7 @@ title: "How to enable experimental features for Docker in Github's workflow for 
 description: "Add buildx and experimental features for Docker in your Github workflows."
 date: 2020-10-04T16:36:00+08:00
 lastmod: 2022-03-20T19:24:01+08:00
-draft: no
+draft: false
 authors: ["rolandjitsu"]
 
 tags: ["docker", "github", "github-actions", "ci", "ubuntu"]
@@ -11,7 +11,7 @@ categories: ["DevOps"]
 series: ["How to do stuff"]
 
 toc:
-  enable: no
+  enable: false
 ---
 
 If you're using [Github's workflows](https://docs.github.com/en/free-pro-team@latest/actions/learn-github-actions/introduction-to-github-actions) for CI/CD and you need to use some of Docker's [experimental features](https://github.com/docker/cli/blob/master/experimental/README.md#current-experimental-features), or you want to use [buildx](https://github.com/docker/buildx) or maybe you just want to use some of the new dockerfile [experimental syntaxes](https://github.com/moby/buildkit/blob/master/frontend/dockerfile/docs/experimental.md) then you need to enable the experimental features for the CLI and probably the daemon too.

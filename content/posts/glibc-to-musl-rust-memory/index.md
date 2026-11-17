@@ -101,7 +101,7 @@ It helped... less than I'd hoped. I was starting to run out of obvious ideas.
 
 Then, while testing, I pushed a *manually built* binary to a device - and watched memory fall off a cliff. From over 1GB to **under 100MB**, mid-ingest. And it wasn't just virtual: resident memory (RSS) also dropped.
 
-*wtf.* :exploding_head:
+*wtf.* 🤯
 
 My first thought was "did my changes finally kick in?" No - way too big, way too sudden. Confused, I ran `ldd` on the binary out of pure curiosity:
 

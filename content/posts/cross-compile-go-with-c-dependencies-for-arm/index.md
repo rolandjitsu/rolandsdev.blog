@@ -3,7 +3,7 @@ title: "Cross-compile Go with C dependencies for ARM"
 description: "Cross-compile Go packages that call C code with cgo for ARM."
 date: 2020-10-11T17:32:00+08:00
 lastmod: 2022-03-20T19:51:22+08:00
-draft: no
+draft: false
 authors: ["rolandjitsu"]
 
 tags: ["go", "docker"]
@@ -11,7 +11,7 @@ categories: ["DevOps"]
 series: []
 
 toc:
-  enable: yes
+  enable: true
 ---
 
 Go has some pretty good support/tools for cross-compiling binaries for multiple platforms/architectures. Just check the `$GOOS`/`$GOARCH` env vars listed in the [official documentation](https://golang.org/doc/install/source#environment).

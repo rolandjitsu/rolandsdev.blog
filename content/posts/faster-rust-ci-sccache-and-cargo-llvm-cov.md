@@ -87,7 +87,7 @@ The result was the whole reason this post exists:
 
 *Read that again*. The tests themselves took **118 seconds**. Compiling them took **1243**. And then coverage - via [`cargo tarpaulin`](https://github.com/xd009642/tarpaulin) - spent another **377s**, most of it *recompiling the same code a second time* with its own instrumentation.
 
-So the "tests are slow" story was a lie. Compilation was slow, and I was paying for it twice. That single measurement rerouted everything I did next. :exploding_head:
+So the "tests are slow" story was a lie. Compilation was slow, and I was paying for it twice. That single measurement rerouted everything I did next. 🤯
 
 ## Fix 1: cache the build (sccache)
 

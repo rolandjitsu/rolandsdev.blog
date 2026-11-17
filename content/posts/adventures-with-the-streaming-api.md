@@ -3,7 +3,7 @@ title: "Adventures with the Streaming API"
 description: "A brief story about how not reading the docs correctly can cost you some extra development time."
 date: 2022-03-26T20:25:44+08:00
 lastmod: 2022-03-26T20:25:44+08:00
-draft: no
+draft: false
 authors: ["rolandjitsu"]
 
 tags: ["javascript", "fetch", "streaming-api"]
@@ -11,7 +11,7 @@ categories: ["JavaScript"]
 series: []
 
 toc:
-  enable: no
+  enable: false
 ---
 
 This story relates to [The Streams API in JavaScript and Go]({{< ref "/posts/the-streams-api-in-javascript-and-go" >}}) which I wrote a while back.
@@ -31,15 +31,15 @@ SyntaxError: Unexpected token { in JSON at position 119
 
 But it happened so randomly and seldom that I just ignored it for quite some time. It also only seemed to happen after leaving the app running for quite some time (at that point it seemed like hours - but it turned out to be around 25 minutes pretty consistently).
 
-So time went by and the day of field testing got closer and closer (when we actually test our devices in the field). So did my anxiety :laughing: . But I was not worried at all about this and I actually forgot about it. But then I started seeing the issue more often and during one of the field tests I noticed some states were not updating :exploding_head: .
+So time went by and the day of field testing got closer and closer (when we actually test our devices in the field). So did my anxiety 😆 . But I was not worried at all about this and I actually forgot about it. But then I started seeing the issue more often and during one of the field tests I noticed some states were not updating 🤯 .
 
 Ok. So about this time is when I embarked on a journey of self doubt and madness.
 
 My first thought was *"something must be wrong with the streaming code"* (I've taken the shared example in the prev post and generalized it so I can reuse for multiple endpoints). So I spent a few hours going through the unit tests and adding more of them until I realized that the issue wasn't there.
 
-So if the issue wasn't there, then it must be the client. So I spent some more time going through that code (no unit tests :disappointed: ) just to end up with nothing :grimacing: . To add to the dismay, I could only reproduce the issue after waiting for about 25 - 30 minutes. So the dev cycle at that point was: make some changes in the API, make some changes in the client and wait for the error to happen, then look at the logs and try to figure it out; then repeat.
+So if the issue wasn't there, then it must be the client. So I spent some more time going through that code (no unit tests 😞 ) just to end up with nothing 😬 . To add to the dismay, I could only reproduce the issue after waiting for about 25 - 30 minutes. So the dev cycle at that point was: make some changes in the API, make some changes in the client and wait for the error to happen, then look at the logs and try to figure it out; then repeat.
 
-At that point, it's probably been about a couple of days and I had no answer. So I realized I'll have to open some issues somewhere to report this and maybe get some help. My thinking was *"it must be either in the echo library, the net/http/httputil or net/http libs"*. I was hopeless :weary_face:
+At that point, it's probably been about a couple of days and I had no answer. So I realized I'll have to open some issues somewhere to report this and maybe get some help. My thinking was *"it must be either in the echo library, the net/http/httputil or net/http libs"*. I was hopeless 😩
 
 So I started taking the parts responsible for streaming and setting up a simple echo server and started testing in the browser. But the environment I was dealing with was a bit more convoluted/complex:
 
@@ -72,7 +72,7 @@ So as you can see, I was pretty convinced the issue was on the backend. But as I
 SyntaxError: JSON.parse: unexpected non-whitespace character after JSON data at line 2 column 1 of the JSON data
 ```
 
-3. Firefox was also breaking when clearing the console, but with a different error :exploding_head:
+3. Firefox was also breaking when clearing the console, but with a different error 🤯
 
 ```text
 SyntaxError: JSON.parse: unterminated string at line 1 column 445 of the JSON data
@@ -90,7 +90,7 @@ SyntaxError: Unexpected token { in JSON at position 119
 
 So now I was confused and lost. But at no point did it occur to me that maybe, just maybe, the issue could be on the client. Even after [@lammel](https://github.com/lammel) had suggested that it's most likely the client (since it's the most complex part of my env). At least I did report the odd behaviour I was getting with fullscreen at [chromium/1305928](https://bugs.chromium.org/p/chromium/issues/detail?id=1305928).
 
-And to add to the pain, [golang/go#51646](https://github.com/golang/go/issues/51646) got closed because my issue didn't seem like a bug (and it wasn't). So I got pretty frustrated with [@mengzhuo](https://github.com/mengzhuo) and I might have overreacted a bit in one of my replies :rolling_eyes: .
+And to add to the pain, [golang/go#51646](https://github.com/golang/go/issues/51646) got closed because my issue didn't seem like a bug (and it wasn't). So I got pretty frustrated with [@mengzhuo](https://github.com/mengzhuo) and I might have overreacted a bit in one of my replies 🙄 .
 
 Around this time I was considering to just add a simple hack:
 

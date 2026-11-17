@@ -3,7 +3,7 @@ title: "One-to-many messaging with chan in Go"
 description: "A simple implementation of one-to-many (or many-to-many) communication using channels in Go."
 date: 2022-04-02T08:07:18+08:00
 lastmod: 2022-04-02T08:07:18+08:00
-draft: no
+draft: false
 authors: ["rolandjitsu"]
 
 tags: ["go", "pub-sub"]
@@ -11,7 +11,7 @@ categories: ["Go"]
 series: []
 
 toc:
-  enable: no
+  enable: false
 ---
 
 The [chan](https://go.dev/ref/spec#Channel_types) type in Go is a mechanism which can be used to send or receive data from one function to another. E.g:
@@ -89,7 +89,7 @@ This can be a useful feature, but sometimes you may need a one-to-many/many-to-m
 
 So you will most likely end up using a pkg like [RxGo](https://github.com/ReactiveX/RxGo) or implement your own one-to-many/many-to-many interface.
 
-I usually tend to use whatever pkgs I find that provide the features I'm interested in, but sometimes the implementation is complicated and difficult to debug. Or sometimes I just want to learn how it's done, and I end up implementing functionality from scratch (not the wisest thing to do :laughing: ).
+I usually tend to use whatever pkgs I find that provide the features I'm interested in, but sometimes the implementation is complicated and difficult to debug. Or sometimes I just want to learn how it's done, and I end up implementing functionality from scratch (not the wisest thing to do 😆 ).
 
 So how would you go about implementing the aforementioned pattern? Well, it's not that complicated. First, let's start with an interface:
 
@@ -284,7 +284,7 @@ It still works, but it doesn't look right (check [gfjNV3dHfvU](https://go.dev/pl
 {hey} 2009-11-10 23:00:01 +0000 UTC m=+1.000000001
 ```
 
-It seems like both pipes received the msg at the same time. That's not exactly great :disappointed: . But that kind of makes sense. If we take a closer look at:
+It seems like both pipes received the msg at the same time. That's not exactly great 😞 . But that kind of makes sense. If we take a closer look at:
 
 ```go
 func (p *piper) setupRcvLoop(source <-chan Data) {
@@ -323,7 +323,7 @@ func (p *piper) setupRcvLoop(source <-chan Data) {
 }
 ```
 
-Ok. That didn't work either :exploding_head: ! We're getting a deadlock. And this makes sense as well, because we add our receiver too late, and we missed the message. This is not easy to fix. I mean, there's an easy fix, but it may not be ideal either.
+Ok. That didn't work either 🤯 ! We're getting a deadlock. And this makes sense as well, because we add our receiver too late, and we missed the message. This is not easy to fix. I mean, there's an easy fix, but it may not be ideal either.
 
 We just need to use a buffered channel with size 1 when we create the receivers/pipes (see [Ruqmk3QKQT1](https://go.dev/play/p/Ruqmk3QKQT1)):
 

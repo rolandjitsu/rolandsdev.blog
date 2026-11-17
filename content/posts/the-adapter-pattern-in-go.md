@@ -3,7 +3,7 @@ title: "The adapter pattern in Go"
 description: "Implement the adapter design pattern in Golang."
 date: 2020-10-26T18:36:00+08:00
 lastmod: 2022-03-20T20:56:14+08:00
-draft: no
+draft: false
 authors: ["rolandjitsu"]
 
 tags: ["go", "design-patterns"]
@@ -11,7 +11,7 @@ categories: ["Go"]
 series: ["Design Patterns in Go"]
 
 toc:
-  enable: no
+  enable: false
 ---
 
 This is a continuation of the *common design patterns I found in my old code* series, which I started in a previous post.

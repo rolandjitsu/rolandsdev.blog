@@ -3,7 +3,7 @@ title: "The iterator pattern in Go"
 description: "Implement the iterator design pattern in Golang."
 date: 2020-10-25T18:59:00+08:00
 lastmod: 2022-03-20T20:44:44+08:00
-draft: no
+draft: false
 authors: ["rolandjitsu"]
 
 tags: ["go", "design-patterns"]
@@ -11,7 +11,7 @@ categories: ["Go"]
 series: ["Design Patterns in Go"]
 
 toc:
-  enable: no
+  enable: false
 ---
 
 This is a continuation of the *common design patterns I found in my old code* series, which I started in a previous post.

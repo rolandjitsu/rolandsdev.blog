@@ -3,7 +3,7 @@ title: "Build Docker images on k8s nodes"
 description: "Speed up your Docker builds using buildx and Kubernetes."
 date: 2020-10-10T17:19:00+08:00
 lastmod: 2022-03-20T19:35:15+08:00
-draft: no
+draft: false
 authors: ["rolandjitsu"]
 
 tags: ["k8s", "qemu"]
@@ -11,7 +11,7 @@ categories: ["DevOps"]
 series: []
 
 toc:
-  enable: no
+  enable: false
 ---
 
 In one of my previous posts, [cross-compiling for Raspberry Pi with Docker]({{< ref "/posts/cross-compile-for-raspberry-pi-with-docker" >}}), I wrote about and illustrated how the relatively new [buildx](https://github.com/docker/buildx) command made it much easier to build and dump binaries on the host system.

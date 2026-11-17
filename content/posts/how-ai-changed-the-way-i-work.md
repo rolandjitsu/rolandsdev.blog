@@ -41,7 +41,7 @@ Honestly, the *flow* changed the least here - we use AI for a first pass, but th
 AI has basically taken this over. The ideas and the direction are mine; the writing and the diagrams are its. Early on I'd go through every sentence to make it sound like me. I've mostly given up on that now - an [AGENTS.md](https://agents.md/) and a few house-style files get it close enough, and when I've got ten things in flight I don't have time to polish. The speed is the win: I can turn thoughts into a decent doc in minutes.
 
 **Admin and the rest.**
-Anything I need to compile or write - if it's not sensitive - I hand off and iterate until it's in the shape I want. Case in point: I used to spend a *week* making 10-20 halfway-decent slides. It does that in a few minutes now. *wtf* :exploding_head: .
+Anything I need to compile or write - if it's not sensitive - I hand off and iterate until it's in the shape I want. Case in point: I used to spend a *week* making 10-20 halfway-decent slides. It does that in a few minutes now. *wtf* 🤯 .
 
 ## What it's genuinely great at
 

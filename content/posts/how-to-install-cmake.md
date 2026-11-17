@@ -3,7 +3,7 @@ title: "How to install cmake?"
 description: "Install cmake on Debian, Ubuntu or macOS."
 date: 2020-09-29T14:32:00+08:00
 lastmod: 2022-03-19T21:34:00+08:00
-draft: no
+draft: false
 authors: ["rolandjitsu"]
 
 tags: ["cmake", "build-tools"]
@@ -11,7 +11,7 @@ categories: ["DevOps"]
 series: ["How to do stuff"]
 
 toc:
-  enable: no
+  enable: false
 ---
 
 [CMake](https://cmake.org/) is a cross-platform tool for building, testing and packaging software.
