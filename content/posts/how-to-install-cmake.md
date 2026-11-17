@@ -2,7 +2,7 @@
 title: "How to install cmake?"
 description: "Install cmake on Debian, Ubuntu or macOS."
 date: 2020-09-29T14:32:00+08:00
-lastmod: 2022-03-19T21:34:00+08:00
+lastmod: 2026-11-17T17:00:00+09:00
 draft: false
 authors: ["rolandjitsu"]
 
@@ -11,71 +11,95 @@ categories: ["DevOps"]
 series: ["How to do stuff"]
 
 toc:
-  enable: false
+  enable: true
 ---
 
 [CMake](https://cmake.org/) is a cross-platform tool for building, testing and packaging software.
 
-If you've been writing C or C++ (or maybe Fortran) you probably had to, at some point, use cmake to package your software.
+If you've been writing C or C++ (or Fortran) you probably had to, at some point, use cmake to package your software.
 
-If you're a Linux user, you'd normally just need to run:
+## Install on macOS
+
+On macOS, the recommended method is using [Homebrew](https://brew.sh/):
+
+```bash
+brew install cmake
+```
+
+Or download the macOS `.dmg` installer directly from the [CMake download page](https://cmake.org/download/).
+
+## Install on Linux
+
+If you're on Debian or Ubuntu, you would normally run:
 
 ```bash
 sudo apt-get install -y cmake
 ```
 
-to install it. But sometimes, the version that you can install from the official repository is not the one you need.
-
-Therefore, you will probably need to proceed with a manual installation. But before you do that, check the current version to see whether is the one you expect or not:
+However, distros often ship older releases. Check your current version first:
 
 ```bash
 cmake --version
 ```
 
-{{< admonition type=note >}}
-These instructions should work for Debian based distros and macOS.
-{{< /admonition >}}
+If you need a newer version, you can either install from the [Kitware APT repository](https://apt.kitware.com/) (recommended for Debian/Ubuntu) or download precompiled binaries / build from source.
 
-Remove the current install:
+### Option A: Install via precompiled binaries (Fastest)
+
+Remove any outdated package:
 
 ```bash
 sudo apt-get -y purge --auto-remove cmake
 ```
 
-Download the [latest stable release](https://cmake.org/download), e.g [v3.19.2](https://github.com/Kitware/CMake/releases/download/v3.19.2/cmake-3.19.2.tar.gz) (do not download the binary/dmg distribution, but the Linux/Unix source):
+Pick the target release from the [GitHub releases page](https://github.com/Kitware/CMake/releases) (e.g. `3.30.5`) and download the precompiled binary script:
 
 ```bash
-wget https://github.com/Kitware/CMake/releases/download/v3.19.2/cmake-3.19.2.tar.gz
+CMAKE_VERSION="3.30.5"
+ARCH="$(uname -m)" # x86_64 or aarch64
+wget "https://github.com/Kitware/CMake/releases/download/v${CMAKE_VERSION}/cmake-${CMAKE_VERSION}-linux-${ARCH}.sh"
+sudo sh "cmake-${CMAKE_VERSION}-linux-${ARCH}.sh" --prefix=/usr/local --skip-license
+rm "cmake-${CMAKE_VERSION}-linux-${ARCH}.sh"
 ```
 
-Unzip the archive:
+### Option B: Build from source
+
+If you need custom build flags or want to build manually from source:
+
+Install build dependencies:
 
 ```bash
-tar -xzvf cmake-3.16.4.tar.gz
+sudo apt-get update && sudo apt-get install -y build-essential libssl-dev wget
 ```
 
-Build and install it:
+Download and extract the source archive:
 
 ```bash
-cd cmake-3.16.4
+CMAKE_VERSION="3.30.5"
+wget "https://github.com/Kitware/CMake/releases/download/v${CMAKE_VERSION}/cmake-${CMAKE_VERSION}.tar.gz"
+tar -xzvf "cmake-${CMAKE_VERSION}.tar.gz"
+cd "cmake-${CMAKE_VERSION}"
+```
+
+Build and install:
+
+```bash
 ./bootstrap
 make -j$(nproc)
 sudo make install
 ```
 
-Verify the installation:
+## Verify the installation
 
 ```bash
 cmake --version
 ```
 
-If you see something like:
+You should see output similar to:
 
 ```text
-cmake version 3.19.2
+cmake version 3.30.5
 CMake suite maintained and supported by Kitware (kitware.com/cmake).
 ```
-
-you're good to go.
 
 For other platforms, check the [official install guide](https://cmake.org/install/).
