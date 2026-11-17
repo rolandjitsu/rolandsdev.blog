@@ -3,7 +3,7 @@ title: "How to install and run QEMU on K8s nodes?"
 description: "Add support for multi-CPU architectures on Kubernetes nodes."
 date: 2020-10-04T14:57:00+08:00
 lastmod: 2022-03-20T19:16:57+08:00
-draft: no
+draft: false
 authors: ["rolandjitsu"]
 
 tags: ["k8s", "qemu"]
@@ -11,7 +11,7 @@ categories: ["DevOps"]
 series: ["How to do stuff"]
 
 toc:
-  enable: no
+  enable: false
 ---
 
 If you find yourself having to emulate different CPU architectures in a Kubernetes environment you'll probably end up running some version of [binfmt](https://hub.docker.com/r/linuxkit/binfmt) as an [init container](https://kubernetes.io/docs/concepts/workloads/pods/init-containers/) or maybe manually run it once.

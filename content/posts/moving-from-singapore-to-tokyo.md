@@ -16,7 +16,7 @@ toc:
 
 It's been a while. A long while :sweat_smile: .
 
-The last time I wrote here I opened with almost the same line - back then the excuse was becoming a father. This time it's ~~bigger~~ (well, nothing's really bigger than becoming a father) this: I packed up my life in Singapore and moved to Tokyo. That was October 2024, so this update is running about two years late :grimacing: .
+The last time I wrote here I opened with almost the same line - back then the excuse was becoming a father. This time it's ~~bigger~~ (well, nothing's really bigger than becoming a father) this: I packed up my life in Singapore and moved to Tokyo. That was October 2024, so this update is running about two years late 😬 .
 
 So here's the catch-up: why I left, what the move actually took (spoiler: nothing like what you see on YouTube), and what I'm building now.
 
@@ -55,7 +55,7 @@ I'll be blunt: Tokyo isn't the paradise the internet makes it out to be. Almost 
 
 The good is genuinely good. It's *safe*. The transport is unreal (I thought Singapore was great) - you can get anywhere, on time, every time. Rent is actually lower than Singapore. Healthcare covers around 70% of costs.
 
-The hard is real too. Socially it's been tough - I haven't made friends outside of work, which is a big change from Singapore where we'd built a proper circle of families with kids the same age as ours. Healthy and/or western food is expensive (fruit especially). And navigating Japanese doctors when you don't speak the language is... an adventure :grimacing: .
+The hard is real too. Socially it's been tough - I haven't made friends outside of work, which is a big change from Singapore where we'd built a proper circle of families with kids the same age as ours. Healthy and/or western food is expensive (fruit especially). And navigating Japanese doctors when you don't speak the language is... an adventure 😬 .
 
 Would I do it again? Yeah. But I walked in with postcard expectations, and reality charged me the difference.
 

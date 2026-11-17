@@ -3,7 +3,7 @@ title: "The Streams API in JavaScript and Go"
 description: "Checkout how to use the Streams API in JavaScript and how the API implementation would look like for it in Go."
 date: 2020-11-08T20:24:00+08:00
 lastmod: 2026-11-15T19:46:00+09:00
-draft: no
+draft: false
 authors: ["rolandjitsu"]
 
 tags: ["go", "javascript", "echo", "fetch", "streaming-api"]
@@ -11,7 +11,7 @@ categories: ["Go", "JavaScript"]
 series: []
 
 toc:
-  enable: no
+  enable: false
 ---
 
 {{< admonition type=tip title="JSON Parsing" >}}

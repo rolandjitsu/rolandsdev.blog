@@ -3,7 +3,7 @@ title: "The singleton pattern in Go"
 description: "Implement the singleton design pattern in Golang."
 date: 2020-10-24T20:17:00+08:00
 lastmod: 2022-03-20T20:24:02+08:00
-draft: no
+draft: false
 authors: ["rolandjitsu"]
 
 tags: ["go", "design-patterns"]
@@ -11,7 +11,7 @@ categories: ["Go"]
 series: ["Design Patterns in Go"]
 
 toc:
-  enable: no
+  enable: false
 ---
 
 I recently started going through some of my old code and I was trying to identify some common design patterns. I thought it could be a good memory exercise and refresher on [software design patterns](https://www.geeksforgeeks.org/software-design-patterns/) as it's been quite some time since I last read through that.
