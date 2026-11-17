@@ -16,6 +16,7 @@ toc:
 
 {{< admonition type=warning title="Deprecated Setup" >}}
 This post is preserved for historical context. In modern Docker (v23+) and GitHub Actions:
+
 - **Buildx and BuildKit are enabled by default**: You no longer need to enable experimental flags for the Docker CLI or daemon to use Buildx, multi-stage builds, or `--mount=type=ssh/secret`.
 - **`ubuntu-18.04` is removed**: GitHub-hosted runners retired Ubuntu 18.04 in December 2022. Workflows should use `ubuntu-latest` (or `ubuntu-24.04`).
 - **Official GitHub Actions**: The canonical modern workflow uses official actions like [docker/setup-buildx-action](https://github.com/docker/setup-buildx-action) and [docker/setup-qemu-action](https://github.com/docker/setup-qemu-action):
@@ -29,6 +30,7 @@ jobs:
       - uses: docker/setup-buildx-action@v3
       - run: docker buildx build .
 ```
+
 {{< /admonition >}}
 
 If you're using [Github's workflows](https://docs.github.com/en/actions) for CI/CD and you need to use some of Docker's [experimental features](https://docs.docker.com/), or you want to use [buildx](https://github.com/docker/buildx) or Dockerfile frontend syntaxes on legacy runners, you needed to enable the experimental features for the CLI and daemon.

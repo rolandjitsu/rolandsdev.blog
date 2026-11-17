@@ -26,6 +26,7 @@ for c.Next() {
 ```
 
 Traditionally in Go, you had three options for iteration:
+
 1. Index-based loops over slices or arrays (`for i, v := range slice`).
 2. Iterating over channels (`for doc := range docs`), which works well for asynchronous streaming but adds synchronization overhead and goroutine allocations.
 3. Custom iterator structs with a `Next()` method (such as Google Cloud's `firestore.DocumentIterator` or `database/sql.Rows`).

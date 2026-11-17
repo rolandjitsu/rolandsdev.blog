@@ -82,4 +82,5 @@ If you decide on a different approach later, remove the daemonset and its pods:
 ```bash
 kubectl delete daemonset binfmt --namespace=kube-system
 ```
+
 {{< /admonition >}}
