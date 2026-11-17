@@ -2,7 +2,7 @@
 title: "Adventures with the Streaming API"
 description: "A brief story about how not reading the docs correctly can cost you some extra development time."
 date: 2022-03-26T20:25:44+08:00
-lastmod: 2022-03-26T20:25:44+08:00
+lastmod: 2026-11-17T17:00:00+09:00
 draft: false
 authors: ["rolandjitsu"]
 
@@ -179,7 +179,7 @@ async function* readLineByLine(reader) {
                 break;
             }
 
-            const remainder = chunk.substr(startIndex);
+            const remainder = chunk.slice(startIndex);
 
             ({value: chunk, done: readerDone} = await reader.read());
             chunk = remainder + (chunk ? utf8Decoder.decode(chunk, {stream: true}) : "");
@@ -195,18 +195,13 @@ async function* readLineByLine(reader) {
 
     if (startIndex < chunk.length) {
         // last line didn't end in a newline char
-        yield chunk.substr(startIndex);
+        yield chunk.slice(startIndex);
     }
 }
 
 async function toJSON(value) {
-    try {
-        const res = new Response(value);
-        const data = await res.json();
-        return data;
-    } catch (e) {
-        throw e;
-    }
+    const res = new Response(value);
+    return await res.json();
 }
 ```
 

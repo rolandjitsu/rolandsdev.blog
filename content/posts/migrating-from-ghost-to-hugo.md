@@ -2,7 +2,7 @@
 title: "Migrating from Ghost to Hugo"
 description: "First impressions of the Hugo static site generator."
 date: 2022-03-26T13:26:57+08:00
-lastmod: 2022-03-26T13:26:57+08:00
+lastmod: 2026-11-17T17:00:00+09:00
 draft: false
 authors: ["rolandjitsu"]
 
@@ -39,7 +39,7 @@ So my thoughts so far on [Hugo](https://gohugo.io/) are:
 3. The community is large, so it's easy to get help (though, I had no issues at all, yet)
 4. There's a decent amount of options for [deployments](https://gohugo.io/hosting-and-deployment/) and they provide docs for those as well; it's a static site, so deployments are also easy
 5. The resulted site is fast to load in browsers
-6. [Build times are fast](https://forestry.io/blog/hugo-vs-jekyll-benchmark/)
+6. [Build times are fast](https://github.com/gohugoio/hugo#benchmarks)
 7. It's extensible via [go modules](https://github.com/golang/go/wiki/Modules)
 8. There's tons of [themes](https://themes.gohugo.io/) to pick from
 
